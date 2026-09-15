@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/client';
 import FormPaciente, { PacienteFormData } from '../components/FormPaciente';
 import FormCita from '../components/FormCita';
-import FormConsulta, { ConsultaFormData } from '../components/FormConsulta';
+import FormHistoriaClinica from '../components/FormHistoriaClinica';
 import FormFactura, { FacturaFormData } from '../components/FormFactura';
 import Sidebar from '../components/Sidebar';
 import { configEvents } from '../utils/configEvents';
@@ -80,9 +80,14 @@ interface ModalProps {
 function Modal({ titulo, onClose, children }: ModalProps) {
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2>{titulo}</h2>
-        {children}
+      <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 0 }}>
+        <div className="ficha-modal-header" style={{ borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0' }}>
+          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: 'var(--gray-900)' }}>{titulo}</h2>
+          <button className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
+        </div>
+        <div style={{ padding: '1.5rem', overflowY: 'auto' }}>
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -261,14 +266,24 @@ function Dashboard() {
     }
   };
 
-  const handleConsultaSubmit = async (data: ConsultaFormData) => {
+  const handleConsultaSubmit = async (data: any) => {
     setConsultaEnviando(true);
     try {
       await apiClient.post('/historias', {
         paciente_id: Number(data.paciente_id),
         profesional_id: 1,
         motivo_consulta: data.motivo_consulta,
-        diagnostico: data.diagnostico,
+        antecedentes_personales: data.antecedentes_personales || null,
+        antecedentes_familiares: data.antecedentes_familiares || null,
+        exploracion_fisica: data.exploracion_fisica || null,
+        diagnostico: data.diagnostico || null,
+        codigo_diagnostico: data.codigo_diagnostico || null,
+        plan_tratamiento: data.plan_tratamiento || null,
+        evolucion: data.evolucion || null,
+        observaciones: data.observaciones || null,
+        exploraciones: data.exploraciones || [],
+        tratamientos: data.tratamientos || [],
+        podogramas: data.podogramas || [],
       });
       await Promise.all([cargarDashboard(), cargarAuditoria()]);
       setModalConsulta(false);
@@ -503,7 +518,7 @@ function Dashboard() {
 
       {modalConsulta && (
         <Modal titulo="Nueva consulta" onClose={() => setModalConsulta(false)}>
-          <FormConsulta
+          <FormHistoriaClinica
             pacientes={pacientes}
             onSubmit={handleConsultaSubmit}
             onCancel={() => setModalConsulta(false)}

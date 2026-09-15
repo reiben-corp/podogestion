@@ -217,7 +217,7 @@ function Facturacion() {
       {/* Modal para nuevo documento */}
       {mostrarModal && (
         <div className="modal-overlay" onClick={() => setMostrarModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px' }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Nuevo Documento</h2>
             <FormFactura
               pacientes={pacientes}

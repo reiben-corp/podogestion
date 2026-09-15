@@ -34,6 +34,42 @@ Solución aplicada: guardar `_originalIndex` en el map y re-ordenar después del
 | Presupuesto | `PRE-{year}-{id:05d}` | `PRE-2026-00001` |
 | Producto | `INV-{id:05d}` | `INV-00001` |
 
+---
+
+## 📋 Módulo Historia Clínica — Verificación Completa (2026-09-15)
+
+### Estado: ✅ FUNCIONAL
+
+| Funcionalidad | Estado | Implementación |
+|---------------|--------|----------------|
+| Formulario completo | ✅ | FormHistoriaClinica.tsx con 10 secciones |
+| Crear consulta | ✅ | POST /api/historias con todos los campos |
+| Editar consulta | ✅ | PUT /api/historias/{id} |
+| Eliminar consulta | ✅ | DELETE /api/historias/{id} (soft delete) |
+| Ver detalle | ✅ | Vista completa con todos los campos |
+| Listar por paciente | ✅ | GET /api/historias/paciente/{id} |
+| Listar recientes | ✅ | GET /api/historias?por_pagina=10 |
+| Exploraciones biomecánicas | ✅ | Tipo, resultado, observaciones |
+| Tratamientos | ✅ | Tipo, descripción, zona, pie, resultado |
+| Podograma interactivo | ✅ | Presiones por zona (SVG editable) |
+
+### Campos del formulario:
+- paciente_id (selector), motivo_consulta*, antecedentes_personales, antecedentes_familiares
+- exploracion_fisica, diagnostico, codigo_diagnostico (CIAP-2)
+- plan_tratamiento, evolucion, observaciones
+- exploraciones[]: tipo (estática/dinámica/marcha/carrera/equilibrio), datos, resultado, observaciones
+- tratamientos[]: tipo (quiropodología/ortesis/plantillas/rehabilitación/cirugía/otro), descripción, zona, pie, resultado, observaciones
+- podogramas[]: pie (izquierdo/derecho), datos (presiones por zona)
+
+### Puntos críticos a NO romper:
+1. `numero_historia` se genera en el backend (HC-{paciente_id:05d}-{num_consulta:03d})
+2. La creación valida existencia de paciente y profesional antes de insertar
+3. Las exploraciones, tratamientos y podogramas se crean tras flush() de la historia
+4. El podograma editable usa `prompt()` para pedir presión por zona
+5. Edición usa PUT con todos los campos (solo los modificables)
+
+---
+
 **Todos los IDs se generan DESPUÉS de `db.flush()`** para tener la PK disponible.
 **Prohibido** usar `count() + 1` para generar IDs correlativos.
 
@@ -154,6 +190,7 @@ Antes de CADA cambio en el backend, verificar que:
 | 2026-09-13 | Post-flush IDs | Ningún ID correlativo se asigna antes de flush |
 | 2026-09-13 | Formato fechas | `dd/mm/aa` en todo el proyecto. UTC+2 Europe/Madrid. Frontend usa `formatearFecha()` |
 | 2026-09-15 | Renombrar campo | `numero_historia` en `pacientes` renombrado a `codigo_paciente` |
+| 2026-09-15 | Módulo HC | Historia Clínica funcional: 10 secciones, exploraciones, tratamientos, podograma |
 
 ---
 

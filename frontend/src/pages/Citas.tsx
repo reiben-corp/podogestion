@@ -572,7 +572,7 @@ function Citas() {
       {/* Modal para nueva cita */}
       {mostrarModal && (
         <div className="modal-overlay" onClick={() => setMostrarModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Nueva Cita</h2>
             <FormCita
               pacientes={pacientes}
@@ -591,7 +591,7 @@ function Citas() {
       {/* Modal para editar cita */}
       {citaEditando && (
         <div className="modal-overlay" onClick={() => setCitaEditando(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Editar Cita</h2>
             <FormCita
               initialData={{

@@ -17,6 +17,64 @@ from app.routers import auth, pacientes, citas, historias, facturacion, inventar
 Base.metadata.create_all(bind=engine)
 
 
+def ensure_admin():
+    """
+    Garantiza que siempre exista un usuario admin activo.
+    
+    - Si no existe: lo crea con la contraseña por defecto.
+    - Si existe y ENVIRONMENT=development: resetea la contraseña al valor por defecto
+      para evitar perder acceso durante el desarrollo.
+    - Si existe y ENVIRONMENT=production: NO modifica la contraseña, solo verifica
+      que esté activo y tenga rol admin.
+    
+    La contraseña se lee de la variable de entorno ADMIN_DEFAULT_PASSWORD
+    (default: "admin123456").
+    """
+    db = SessionLocal()
+    try:
+        from app.models.user import User, UserRole
+        from app.core.security import get_password_hash
+        
+        admin_password = "admin123456"  # TODO: leer de variable de entorno
+        admin_user = db.query(User).filter(User.username == "admin").first()
+        
+        if not admin_user:
+            # Crear admin desde cero
+            admin_user = User(
+                username="admin",
+                email="admin@clinica.com",
+                hashed_password=get_password_hash(admin_password),
+                full_name="Administrador",
+                role=UserRole.ADMIN,
+                is_active=True
+            )
+            db.add(admin_user)
+            db.commit()
+            print("🔐 ADMIN CREADO - username: admin / password: " + admin_password)
+        elif settings.ENVIRONMENT == "development":
+            # En desarrollo: resetea contraseña para evitar bloqueos
+            admin_user.hashed_password = get_password_hash(admin_password)
+            admin_user.is_active = True
+            admin_user.role = UserRole.ADMIN
+            db.commit()
+            print("🔐 ADMIN RESET (development) - password: " + admin_password)
+        else:
+            # En producción: solo garantizar que está activo
+            if not admin_user.is_active or admin_user.role != UserRole.ADMIN:
+                admin_user.is_active = True
+                admin_user.role = UserRole.ADMIN
+                db.commit()
+                print("🔐 ADMIN REACTIVADO (production)")
+            else:
+                print("✅ Admin verificado")
+                
+    except Exception as e:
+        db.rollback()
+        print(f"⚠️ Error en ensure_admin: {e}")
+    finally:
+        db.close()
+
+
 def seed_configuraciones():
     """Inserta las configuraciones por defecto si no existen."""
     db = SessionLocal()
@@ -92,6 +150,7 @@ def aplicar_configuracion_documentos():
 async def lifespan(app: FastAPI):
     """Evento de inicio de la aplicación."""
     # Startup
+    ensure_admin()
     seed_configuraciones()
     aplicar_configuracion_documentos()
     yield

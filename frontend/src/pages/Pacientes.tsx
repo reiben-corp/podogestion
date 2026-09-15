@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import apiClient, { documentosApi } from '../api/client';
 import Sidebar from '../components/Sidebar';
 import FormPaciente from '../components/FormPaciente';
+import FormHistoriaClinica from '../components/FormHistoriaClinica';
 import Header from '../components/Header';
+import { useScrollLock } from '../hooks/useScrollLock';
 
 import { formatearFecha } from '../utils/fecha';
 
@@ -75,7 +77,10 @@ function Pacientes() {
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
   const [formDataEdit, setFormDataEdit] = useState<any>({});
   const [mostrarModalEdit, setMostrarModalEdit] = useState(false);
+  const [mostrarModalConsulta, setMostrarModalConsulta] = useState(false);
   const [mostrarDetalleConsulta, setMostrarDetalleConsulta] = useState(false);
+
+  useScrollLock(mostrarModal || mostrarModalEdit || mostrarModalConsulta || !!pacienteSeleccionado);
 
   const cargarPacientes = async (query = '') => {
     try {
@@ -105,7 +110,7 @@ function Pacientes() {
 
   // Bloquear scroll del fondo cuando hay un modal abierto
   useEffect(() => {
-    const hayModal = mostrarModal || mostrarModalEdit || pacienteSeleccionado;
+    const hayModal = mostrarModal || mostrarModalEdit || mostrarModalConsulta || pacienteSeleccionado;
     if (hayModal) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -156,6 +161,20 @@ function Pacientes() {
     if (!v) return '-';
     const m: Record<string,string> = { masculino:'Masculino', femenino:'Femenino', otro:'Otro' };
     return m[v] || v;
+  };
+
+  const handleConsultaSubmit = async (data: any) => {
+    try {
+      await apiClient.post('/historias', {
+        ...data,
+        profesional_id: 1,
+      });
+      alert('Consulta creada correctamente');
+      setMostrarModalConsulta(false);
+      verFicha(pacienteSeleccionado!);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || 'Error al crear la consulta');
+    }
   };
 
   return (
@@ -230,7 +249,7 @@ function Pacientes() {
                 <span className="ficha-codigo">{pacienteSeleccionado.codigo_paciente}</span>
               </div>
               <div className="ficha-header-botones">
-                <Link to={`/historia-clinica?paciente=${pacienteSeleccionado.id}`} className="btn btn-primary btn-sm" style={{ textDecoration:'none' }}>+ Nueva Consulta</Link>
+                <button onClick={() => setMostrarModalConsulta(true)} className="btn btn-primary btn-sm" style={{ textDecoration:'none' }}>+ Nueva Consulta</button>
                 <button onClick={iniciarEdicion} className="btn btn-secondary btn-sm">✏️ Editar</button>
                 <button onClick={cerrarFicha} className="btn btn-secondary btn-sm">✕</button>
               </div>
@@ -580,7 +599,7 @@ function Pacientes() {
       {/* Modal: Editar Paciente — usa el MISMO componente que el alta */}
       {mostrarModalEdit && pacienteSeleccionado && (
         <div className="modal-overlay" onClick={() => setMostrarModalEdit(false)}>
-          <div className="modal edit-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '950px', maxHeight: '92vh', overflowY: 'auto', padding: 0 }}>
+          <div className="modal edit-modal" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '92vh', overflowY: 'auto', padding: 0 }}>
             <div className="ficha-modal-header">
               <h2>✏️ Editar Paciente — {pacienteSeleccionado.codigo_paciente}</h2>
               <button onClick={() => setMostrarModalEdit(false)} className="btn btn-secondary btn-sm">✕</button>
@@ -602,6 +621,25 @@ function Pacientes() {
               }}
               onCancel={() => setMostrarModalEdit(false)}
             />
+          </div>
+        </div>
+      )}
+      {/* Modal: Nueva Consulta desde Ficha del Paciente */}
+      {mostrarModalConsulta && pacienteSeleccionado && (
+        <div className="modal-overlay" onClick={() => setMostrarModalConsulta(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '92vh' }}>
+            <div className="ficha-modal-header">
+              <h2 style={{ margin: 0 }}>📋 Nueva Consulta — {pacienteSeleccionado.nombre} {pacienteSeleccionado.apellidos}</h2>
+              <button onClick={() => setMostrarModalConsulta(false)} className="btn btn-secondary btn-sm">✕</button>
+            </div>
+            <div style={{ overflowY: 'auto', padding: '1.5rem' }}>
+              <FormHistoriaClinica
+                pacientes={[pacienteSeleccionado]}
+                initialData={{ paciente_id: pacienteSeleccionado.id }}
+                onSubmit={handleConsultaSubmit}
+                onCancel={() => setMostrarModalConsulta(false)}
+              />
+            </div>
           </div>
         </div>
       )}

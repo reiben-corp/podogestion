@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { formatearFecha } from '../utils/fecha';
 import apiClient from '../api/client';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { useAuth } from '../hooks/useAuth';
+import { useScrollLock } from '../hooks/useScrollLock';
 import Podograma from '../components/Podograma';
-import FormConsulta from '../components/FormConsulta';
+import FormHistoriaClinica from '../components/FormHistoriaClinica';
 
 interface Historia {
   id: number;
@@ -30,45 +32,29 @@ interface Historia {
 }
 
 function HistoriaClinica() {
+  const [searchParams] = useSearchParams();
+  const pacienteParam = searchParams.get('paciente');
+
   const [historias, setHistorias] = useState<Historia[]>([]);
   const [historiasRecientes, setHistoriasRecientes] = useState<Historia[]>([]);
   const [historiaActual, setHistoriaActual] = useState<Historia | null>(null);
-  const [pacienteId, setPacienteId] = useState('');
   const [cargando, setCargando] = useState(false);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarModalFormulario, setMostrarModalFormulario] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [pacientes, setPacientes] = useState<any[]>([]);
-  const [, setDatosPodograma] = useState<any>({});
-
+  const [busqueda, setBusqueda] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const [buscando, setBuscando] = useState(false);
   const { user: _user } = useAuth();
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const pacienteParam = params.get('paciente');
-    if (pacienteParam) {
-      setPacienteId(pacienteParam);
-    }
-  }, []);
+  useScrollLock(mostrarModalFormulario);
 
   const cargarPacientes = async () => {
     try {
-      const response = await apiClient.get('/pacientes?por_pagina=100');
+      const response = await apiClient.get('/pacientes?por_pagina=200');
       setPacientes(response.data.pacientes);
     } catch (error) {
       console.error('Error cargando pacientes:', error);
-    }
-  };
-
-  const cargarHistorias = async (pid: string) => {
-    if (!pid) return;
-    try {
-      setCargando(true);
-      const response = await apiClient.get(`/historias/paciente/${pid}`);
-      setHistorias(response.data);
-    } catch (error) {
-      console.error('Error cargando historias:', error);
-    } finally {
-      setCargando(false);
     }
   };
 
@@ -86,213 +72,271 @@ function HistoriaClinica() {
     cargarHistoriasRecientes();
   }, []);
 
+  // Si viene paciente por URL, buscar automáticamente
   useEffect(() => {
-    if (pacienteId) {
-      cargarHistorias(pacienteId);
+    if (pacienteParam && pacientes.length > 0) {
+      const paciente = pacientes.find(p => p.id === Number(pacienteParam));
+      if (paciente) {
+        const nombreCompleto = `${paciente.nombre} ${paciente.apellidos}`;
+        setBusqueda(nombreCompleto);
+        setBuscando(true);
+        apiClient.get('/historias', {
+          params: { busqueda: nombreCompleto, por_pagina: 200 }
+        }).then(response => {
+          setHistorias(response.data.historias);
+        });
+      }
     }
-  }, [pacienteId]);
+  }, [pacienteParam, pacientes]);
 
-  const handlePacienteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const pid = e.target.value;
-    setPacienteId(pid);
+  const handleBusqueda = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!busqueda.trim()) {
+      setHistorias([]);
+      setBuscando(false);
+      return;
+    }
+    try {
+      setCargando(true);
+      setBuscando(true);
+      const response = await apiClient.get('/historias', {
+        params: { busqueda: busqueda.trim(), por_pagina: 200 }
+      });
+      setHistorias(response.data.historias);
+    } catch (error) {
+      console.error('Error buscando historias:', error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const handleSubmit = async (data: any) => {
+    if (modoEdicion && historiaActual) {
+      await apiClient.put(`/historias/${historiaActual.id}`, data);
+      setMensaje('Consulta actualizada correctamente');
+    } else {
+      await apiClient.post('/historias', { ...data, profesional_id: 1 });
+      setMensaje('Consulta creada correctamente');
+    }
+    cargarHistoriasRecientes();
+    if (buscando) {
+      const response = await apiClient.get('/historias', {
+        params: { busqueda: busqueda.trim(), por_pagina: 200 }
+      });
+      setHistorias(response.data.historias);
+    }
+    setMostrarModalFormulario(false);
+    setModoEdicion(false);
     setHistoriaActual(null);
-    setMostrarFormulario(false);
+    setTimeout(() => setMensaje(''), 3000);
   };
 
-  const verHistoria = (historia: Historia) => {
-    setHistoriaActual(historia);
-    setMostrarFormulario(false);
+  const handleEliminar = async (historia: Historia) => {
+    if (!confirm('¿Está seguro de que desea eliminar esta consulta?')) return;
+    try {
+      await apiClient.delete(`/historias/${historia.id}`);
+      if (buscando) {
+        const response = await apiClient.get('/historias', {
+          params: { busqueda: busqueda.trim(), por_pagina: 200 }
+        });
+        setHistorias(response.data.historias);
+      }
+      cargarHistoriasRecientes();
+      if (historiaActual?.id === historia.id) {
+        setHistoriaActual(null);
+      }
+      setMensaje('Consulta eliminada correctamente');
+      setTimeout(() => setMensaje(''), 3000);
+    } catch (error) {
+      console.error('Error eliminando historia:', error);
+      alert('Error al eliminar la consulta');
+    }
   };
 
-  const editarHistoria = (historia: Historia) => {
-    setHistoriaActual(historia);
-    setModoEdicion(true);
-    setMostrarFormulario(true);
-  };
+  const historiaToFormData = (h: Historia) => ({
+    paciente_id: h.paciente_id,
+    motivo_consulta: h.motivo_consulta || '',
+    antecedentes_personales: h.antecedentes_personales || '',
+    antecedentes_familiares: h.antecedentes_familiares || '',
+    exploracion_fisica: h.exploracion_fisica || '',
+    diagnostico: h.diagnostico || '',
+    codigo_diagnostico: h.codigo_diagnostico || '',
+    plan_tratamiento: h.plan_tratamiento || '',
+    evolucion: h.evolucion || '',
+    observaciones: h.observaciones || '',
+    exploraciones: h.exploraciones || [],
+    tratamientos: h.tratamientos || [],
+    podograma_izquierdo_datos: h.podogramas?.find(p => p.pie === 'izquierdo')?.datos || {},
+    podograma_derecho_datos: h.podogramas?.find(p => p.pie === 'derecho')?.datos || {},
+  });
 
   return (
     <div className="app-container">
       <Sidebar />
-
       <main className="main-content">
-        <Header titulo="Historia Clínica" icono="📋" />
+        <Header titulo="Historia Clínica" icono="📋">
+          <button onClick={() => setMostrarModalFormulario(true)} className="btn btn-primary">
+            + Nueva Historia Clínica
+          </button>
+        </Header>
 
-        {/* Selector de paciente */}
-        <div className="card">
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#1e3a5f' }}>
-            Seleccionar Paciente:
-          </label>
-          <select
-            value={pacienteId}
-            onChange={handlePacienteChange}
-            style={{ width: '100%', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '6px', fontSize: '1rem' }}
-          >
-            <option value="">-- Ver todas las historias recientes --</option>
-            {pacientes.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nombre} {p.apellidos} ({p.codigo_paciente})
-              </option>
-            ))}
-          </select>
+        {mensaje && (
+          <div style={{ background: '#d4edda', color: '#155724', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' }}>
+            {mensaje}
+          </div>
+        )}
+
+        {/* Barra de búsqueda */}
+        <div className="card" style={{ marginBottom: '1rem' }}>
+          <form onSubmit={handleBusqueda} style={{ display: 'flex', gap: '1rem' }}>
+            <input
+              type="text"
+              placeholder="Buscar paciente por nombre o apellidos..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              style={{ flex: 1, padding: '0.6rem', border: '1px solid #ddd', borderRadius: '6px' }}
+            />
+            <button type="submit" className="btn btn-primary">🔍 Buscar</button>
+            {buscando && (
+              <button type="button" className="btn btn-secondary"
+                onClick={() => { setBusqueda(''); setHistorias([]); setBuscando(false); setHistoriaActual(null); }}>
+                ✕ Limpiar
+              </button>
+            )}
+          </form>
         </div>
 
-        {pacienteId ? (
+        {buscando ? (
           <>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <button 
-                onClick={() => {
-                  setMostrarFormulario(true);
-                  setModoEdicion(false);
-                  setHistoriaActual(null);
-                  setDatosPodograma({});
-                }}
-                className="btn btn-primary"
-              >
-                + Nueva Consulta
-              </button>
-            </div>
-
             {cargando ? (
               <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-                <p style={{ color: '#666' }}>Cargando historias clínicas...</p>
+                <p style={{ color: '#666' }}>Buscando...</p>
               </div>
-            ) : historias.length === 0 && !mostrarFormulario ? (
+            ) : historias.length === 0 ? (
               <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-                <p style={{ color: '#666' }}>No hay historias clínicas para este paciente</p>
+                <p style={{ color: '#666' }}>No se encontraron resultados para "{busqueda}"</p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div>
-                  <h3 style={{ color: '#1e3a5f', marginBottom: '1rem' }}>Consultas Anteriores</h3>
-                  {historias.map((historia) => (
-                    <div 
-                      key={historia.id} 
-                      className="card"
-                      style={{ 
-                        cursor: 'pointer',
-                        border: historiaActual?.id === historia.id ? '2px solid #1e3a5f' : '1px solid #e0e0e0'
-                      }}
-                      onClick={() => verHistoria(historia)}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                        <div>
-                          <p style={{ fontWeight: 600, color: '#1e3a5f' }}>
-                            {formatearFecha(historia.fecha_consulta)}
-                          </p>
-                          <p style={{ fontSize: '0.8rem', color: '#888' }}>{historia.numero_historia}</p>
-                          <p style={{ color: '#666', fontSize: '0.9rem' }}>
-                            {historia.motivo_consulta || 'Sin motivo especificado'}
-                          </p>
-                        </div>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); editarHistoria(historia); }}
-                          className="btn btn-secondary"
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
-                        >
-                          Editar
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nº Historia</th>
+                      <th>Fecha</th>
+                      <th>Paciente</th>
+                      <th>Motivo</th>
+                      <th>Información</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historias.map((historia) => (
+                      <tr key={historia.id}
+                        style={{ cursor: 'pointer', background: historiaActual?.id === historia.id ? '#e8f4f8' : undefined }}
+                        onClick={() => setHistoriaActual(historia)}>
+                        <td><strong style={{ fontFamily: 'monospace' }}>{historia.numero_historia}</strong></td>
+                        <td>{formatearFecha(historia.fecha_consulta)}</td>
+                        <td>{historia.paciente_nombre || 'N/A'}</td>
+                        <td>{historia.motivo_consulta || '-'}</td>
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => setHistoriaActual(historia)}
+                            className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
+                            Ver detalle
+                          </button>
+                          <button onClick={() => { setHistoriaActual(historia); setModoEdicion(true); setMostrarModalFormulario(true); }}
+                            className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', marginLeft: '0.3rem' }}>
+                            ✏️
+                          </button>
+                          <button onClick={() => handleEliminar(historia)}
+                            className="btn btn-danger" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', marginLeft: '0.3rem' }}>
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {historiaActual && (
+              <div className="card" style={{ marginTop: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                  <div>
+                    <h3 style={{ color: '#1e3a5f', marginBottom: '0.3rem' }}>
+                      Consulta {historiaActual.numero_historia} — {formatearFecha(historiaActual.fecha_consulta)}
+                    </h3>
+                    <p style={{ color: '#666' }}>
+                      Paciente: {historiaActual.paciente_nombre || 'N/A'}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.3rem' }}>
+                    <button onClick={() => { setModoEdicion(true); setMostrarModalFormulario(true); }}
+                      className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
+                      ✏️ Editar
+                    </button>
+                    <button onClick={() => handleEliminar(historiaActual)}
+                      className="btn btn-danger" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
+                      🗑️
+                    </button>
+                  </div>
                 </div>
 
-                <div>
-                  {mostrarFormulario ? (
-                    <div className="card">
-                      <h3 style={{ color: '#1e3a5f', marginBottom: '1rem' }}>
-                        {modoEdicion ? 'Editar Consulta' : 'Nueva Consulta'}
-                      </h3>
-                      <FormConsulta
-                        pacientes={pacientes}
-                        onSubmit={async (data) => {
-                          await apiClient.post('/historias', { ...data, profesional_id: 1 });
-                          cargarHistorias(pacienteId);
-                          cargarHistoriasRecientes();
-                          setMostrarFormulario(false);
-                          setModoEdicion(false);
-                          setHistoriaActual(null);
-                        }}
-                        onCancel={() => setMostrarFormulario(false)}
-                      />
-                    </div>
-                  ) : historiaActual ? (
-                    <div className="card">
-                      <h3 style={{ color: '#1e3a5f', marginBottom: '0.5rem' }}>
-                        Consulta del {formatearFecha(historiaActual.fecha_consulta)}
-                      </h3>
-                      <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1rem' }}>{historiaActual.numero_historia}</p>
+                <DetalleSeccion titulo="1. Motivo de Consulta" valor={historiaActual.motivo_consulta} />
+                <DetalleSeccion titulo="2. Antecedentes Personales" valor={historiaActual.antecedentes_personales} />
+                <DetalleSeccion titulo="Antecedentes Familiares" valor={historiaActual.antecedentes_familiares} />
+                <DetalleSeccion titulo="3. Exploración Física" valor={historiaActual.exploracion_fisica} />
 
-                      <div style={{ marginBottom: '1rem' }}>
-                        <h4 style={{ color: '#555', fontSize: '0.9rem' }}>1. Motivo de Consulta</h4>
-                        <p>{historiaActual.motivo_consulta || '-'}</p>
+                {historiaActual.diagnostico && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h4 style={{ color: '#555', fontSize: '0.9rem' }}>4. Diagnóstico</h4>
+                    <p>{historiaActual.diagnostico}</p>
+                    {historiaActual.codigo_diagnostico && (
+                      <span className="badge badge-info">CIAP-2: {historiaActual.codigo_diagnostico}</span>
+                    )}
+                  </div>
+                )}
+
+                <DetalleSeccion titulo="5. Plan de Tratamiento" valor={historiaActual.plan_tratamiento} />
+                <DetalleSeccion titulo="6. Evolución" valor={historiaActual.evolucion} />
+                <DetalleSeccion titulo="7. Observaciones" valor={historiaActual.observaciones} />
+
+                {historiaActual.exploraciones?.length > 0 && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h4 style={{ color: '#555', fontSize: '0.9rem' }}>8. Exploraciones Biomecánicas</h4>
+                    {historiaActual.exploraciones.map((exp: any) => (
+                      <div key={exp.id} style={{ padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', marginBottom: '0.5rem' }}>
+                        <span className="badge badge-primary">{exp.tipo}</span>
+                        {exp.resultado && <p style={{ marginTop: '0.3rem' }}>{exp.resultado}</p>}
+                        {exp.observaciones && <small style={{ color: '#888' }}>{exp.observaciones}</small>}
                       </div>
+                    ))}
+                  </div>
+                )}
 
-                      {historiaActual.antecedentes_personales && (
-                        <div style={{ marginBottom: '1rem' }}>
-                          <h4 style={{ color: '#555', fontSize: '0.9rem' }}>2. Antecedentes Personales</h4>
-                          <p>{historiaActual.antecedentes_personales}</p>
-                        </div>
-                      )}
+                {historiaActual.tratamientos?.length > 0 && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h4 style={{ color: '#555', fontSize: '0.9rem' }}>9. Tratamientos</h4>
+                    {historiaActual.tratamientos.map((trat: any) => (
+                      <div key={trat.id} style={{ padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', marginBottom: '0.5rem' }}>
+                        <span className="badge badge-success">{trat.tipo}</span>
+                        <p style={{ marginTop: '0.3rem' }}>{trat.descripcion}</p>
+                        {trat.zona && <small style={{ color: '#888' }}>Zona: {trat.zona}</small>}
+                        {trat.pie && <small style={{ color: '#888', marginLeft: '0.5rem' }}>({trat.pie})</small>}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                      {historiaActual.exploracion_fisica && (
-                        <div style={{ marginBottom: '1rem' }}>
-                          <h4 style={{ color: '#555', fontSize: '0.9rem' }}>3. Exploración Física</h4>
-                          <p>{historiaActual.exploracion_fisica}</p>
-                        </div>
-                      )}
-
-                      {historiaActual.diagnostico && (
-                        <div style={{ marginBottom: '1rem' }}>
-                          <h4 style={{ color: '#555', fontSize: '0.9rem' }}>4. Diagnóstico</h4>
-                          <p>{historiaActual.diagnostico}</p>
-                          {historiaActual.codigo_diagnostico && <span className="badge badge-info">CIAP-2: {historiaActual.codigo_diagnostico}</span>}
-                        </div>
-                      )}
-
-                      {historiaActual.podogramas && historiaActual.podogramas.length > 0 && (
-                        <div style={{ margin: '1rem 0' }}>
-                          <h4 style={{ color: '#1e3a5f', marginBottom: '1rem' }}>🦶 Podograma</h4>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            {historiaActual.podogramas.map((pod: any) => (
-                              <Podograma key={pod.id} pie={pod.pie} datos={pod.datos} modo="ver" />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {historiaActual.plan_tratamiento && (
-                        <div style={{ marginBottom: '1rem' }}>
-                          <h4 style={{ color: '#555', fontSize: '0.9rem' }}>5. Plan de Tratamiento</h4>
-                          <p>{historiaActual.plan_tratamiento}</p>
-                        </div>
-                      )}
-
-                      {historiaActual.evolucion && (
-                        <div style={{ marginBottom: '1rem' }}>
-                          <h4 style={{ color: '#555', fontSize: '0.9rem' }}>6. Evolución</h4>
-                          <p>{historiaActual.evolucion}</p>
-                        </div>
-                      )}
-
-                      {historiaActual.tratamientos && historiaActual.tratamientos.length > 0 && (
-                        <div style={{ marginBottom: '1rem' }}>
-                          <h4 style={{ color: '#555', fontSize: '0.9rem' }}>Tratamientos</h4>
-                          {historiaActual.tratamientos.map((trat: any) => (
-                            <div key={trat.id} style={{ padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', marginBottom: '0.5rem' }}>
-                              <span className="badge badge-success">{trat.tipo}</span>
-                              <p style={{ marginTop: '0.5rem' }}>{trat.descripcion}</p>
-                              {trat.zona && <small style={{ color: '#888' }}>Zona: {trat.zona}</small>}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                {historiaActual.podogramas?.length > 0 && (
+                  <div style={{ margin: '1rem 0' }}>
+                    <h4 style={{ color: '#1e3a5f', marginBottom: '1rem' }}>🦶 Podograma</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      {historiaActual.podogramas.map((pod: any) => (
+                        <Podograma key={pod.id} pie={pod.pie} datos={pod.datos} modo="ver" />
+                      ))}
                     </div>
-                  ) : (
-                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-                      <p style={{ color: '#666' }}>Selecciona una consulta para ver el detalle</p>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -312,7 +356,6 @@ function HistoriaClinica() {
                       <th>Nº Historia</th>
                       <th>Paciente</th>
                       <th>Motivo</th>
-                      <th>Diagnóstico</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -320,12 +363,22 @@ function HistoriaClinica() {
                     {historiasRecientes.map((historia) => (
                       <tr key={historia.id}>
                         <td>{formatearFecha(historia.fecha_consulta)}</td>
-                        <td>{historia.numero_historia}</td>
+                        <td><strong style={{ fontFamily: 'monospace' }}>{historia.numero_historia}</strong></td>
                         <td>{historia.paciente_nombre || 'N/A'}</td>
                         <td>{historia.motivo_consulta || '-'}</td>
-                        <td>{historia.diagnostico || '-'}</td>
                         <td>
-                          <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem' }} onClick={() => { setPacienteId(historia.paciente_id.toString()); verHistoria(historia); }}>Ver</button>
+                          <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem' }}
+                            onClick={() => {
+                              // Buscar todas las historias del paciente usando el endpoint por ID
+                              apiClient.get(`/historias/paciente/${historia.paciente_id}?por_pagina=200`)
+                                .then(response => {
+                                  setHistorias(response.data);
+                                  setBuscando(true);
+                                  setBusqueda(historia.paciente_nombre || '');
+                                });
+                            }}>
+                            Ver todas
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -336,6 +389,39 @@ function HistoriaClinica() {
           </div>
         )}
       </main>
+
+      {/* Modal: Formulario de Historia Clínica */}
+      {mostrarModalFormulario && (
+        <div className="modal-overlay" onClick={() => setMostrarModalFormulario(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ padding: 0 }}>
+            <div className="ficha-modal-header" style={{ borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0' }}>
+              <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: 'var(--gray-900)' }}>{modoEdicion ? '✏️ Editar Consulta' : '📋 Nueva Historia Clínica'}</h2>
+              <button onClick={() => setMostrarModalFormulario(false)} className="btn btn-secondary btn-sm">✕</button>
+            </div>
+            <div style={{ padding: '1.5rem', overflowY: 'auto' }}>
+              <FormHistoriaClinica
+                pacientes={pacientes}
+                initialData={modoEdicion && historiaActual ? historiaToFormData(historiaActual) : undefined}
+                onSubmit={handleSubmit}
+                onCancel={() => {
+                  setMostrarModalFormulario(false);
+                  setModoEdicion(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DetalleSeccion({ titulo, valor }: { titulo: string; valor?: string }) {
+  if (!valor) return null;
+  return (
+    <div style={{ marginBottom: '1rem' }}>
+      <h4 style={{ color: '#555', fontSize: '0.9rem' }}>{titulo}</h4>
+      <p>{valor}</p>
     </div>
   );
 }

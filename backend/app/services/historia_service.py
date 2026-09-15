@@ -12,15 +12,22 @@ from app.models.paciente import Paciente
 from app.models.user import User
 
 
-def generar_numero_historia(db: Session, paciente_id: int) -> str:
+def generar_numero_historia(db: Session, paciente_id: int, fecha_consulta=None) -> str:
     """
-    Genera un número de historia clínico único.
+    Genera un número de historia clínico único basado en orden cronológico.
     Formato: HC-{paciente_id:05d}-{num_consulta:03d}
-    Ejemplo: Si paciente 1 tiene 2 historias, la siguiente es HC-00001-003
+    
+    El número se asigna contando cuántas historias tienen fecha <= la fecha
+    de la nueva historia, garantizando que el orden sea cronológico.
     """
-    # Contar cuántas historias tiene este paciente
+    from datetime import datetime
+    if not fecha_consulta:
+        fecha_consulta = datetime.now()
+    
+    # Contar historias anteriores o iguales en fecha para este paciente
     count = db.query(HistoriaClinica).filter(
-        HistoriaClinica.paciente_id == paciente_id
+        HistoriaClinica.paciente_id == paciente_id,
+        HistoriaClinica.fecha_consulta <= fecha_consulta
     ).count()
     num_consulta = count + 1
     return f"HC-{paciente_id:05d}-{num_consulta:03d}"
@@ -41,7 +48,8 @@ def crear_historia_completa(
     observaciones: str = None,
     exploraciones: list = None,
     tratamientos: list = None,
-    podogramas: list = None
+    podogramas: list = None,
+    fecha_consulta=None
 ) -> HistoriaClinica:
     """
     Crea una historia clínica completa con sus relaciones.
@@ -60,8 +68,8 @@ def crear_historia_completa(
     if not profesional:
         raise ValueError("Profesional no encontrado")
     
-    # Generar número de historia único
-    numero_historia = generar_numero_historia(db, paciente_id)
+    # Generar número de historia único basado en fecha
+    numero_historia = generar_numero_historia(db, paciente_id, fecha_consulta)
     
     # Crear historia clínica
     historia = HistoriaClinica(

@@ -20,21 +20,23 @@ interface PodogramaProps {
 
 const ZONAS_PIE: Record<'izquierdo' | 'derecho', ZonaPie[]> = {
   izquierdo: [
-    { id: 'hallux', nombre: 'Hallux', path: 'M150,50 Q170,30 190,50 Q200,70 190,90 Q170,100 150,90 Q140,70 150,50' },
-    { id: 'dedo2', nombre: '2º Dedo', path: 'M200,60 Q215,45 230,60 Q235,80 230,100 Q215,110 200,100 Q190,80 200,60' },
-    { id: 'dedo3', nombre: '3º Dedo', path: 'M240,70 Q255,55 270,70 Q275,90 270,110 Q255,120 240,110 Q230,90 240,70' },
-    { id: 'dedo4', nombre: '4º Dedo', path: 'M280,80 Q295,65 310,80 Q315,100 310,120 Q295,130 280,120 Q270,100 280,80' },
-    { id: 'dedo5', nombre: '5º Dedo', path: 'M320,95 Q335,80 350,95 Q355,115 350,135 Q335,145 320,135 Q310,115 320,95' },
-    { id: 'metatarso', nombre: 'Metatarso', path: 'M130,100 L370,100 L380,180 L120,180 Z' },
-    { id: 'empeine', nombre: 'Empeine', path: 'M120,180 L380,180 L370,260 L130,260 Z' },
-    { id: 'talon', nombre: 'Talón', path: 'M130,260 L370,260 L360,340 L140,340 Z' },
-  ],
-  derecho: [
+    // Pie izquierdo anatómico: hallux a la DERECHA (centro), dedo5 a la IZQUIERDA
     { id: 'hallux', nombre: 'Hallux', path: 'M350,50 Q370,30 390,50 Q400,70 390,90 Q370,100 350,90 Q340,70 350,50' },
     { id: 'dedo2', nombre: '2º Dedo', path: 'M300,60 Q315,45 330,60 Q335,80 330,100 Q315,110 300,100 Q290,80 300,60' },
     { id: 'dedo3', nombre: '3º Dedo', path: 'M240,70 Q255,55 270,70 Q275,90 270,110 Q255,120 240,110 Q230,90 240,70' },
     { id: 'dedo4', nombre: '4º Dedo', path: 'M180,80 Q195,65 210,80 Q215,100 210,120 Q195,130 180,120 Q170,100 180,80' },
     { id: 'dedo5', nombre: '5º Dedo', path: 'M120,95 Q135,80 150,95 Q155,115 150,135 Q135,145 120,135 Q110,115 120,95' },
+    { id: 'metatarso', nombre: 'Metatarso', path: 'M130,100 L370,100 L380,180 L120,180 Z' },
+    { id: 'empeine', nombre: 'Empeine', path: 'M120,180 L380,180 L370,260 L130,260 Z' },
+    { id: 'talon', nombre: 'Talón', path: 'M130,260 L370,260 L360,340 L140,340 Z' },
+  ],
+  derecho: [
+    // Pie derecho anatómico: hallux a la IZQUIERDA (centro), dedo5 a la DERECHA
+    { id: 'hallux', nombre: 'Hallux', path: 'M150,50 Q170,30 190,50 Q200,70 190,90 Q170,100 150,90 Q140,70 150,50' },
+    { id: 'dedo2', nombre: '2º Dedo', path: 'M200,60 Q215,45 230,60 Q235,80 230,100 Q215,110 200,100 Q190,80 200,60' },
+    { id: 'dedo3', nombre: '3º Dedo', path: 'M240,70 Q255,55 270,70 Q275,90 270,110 Q255,120 240,110 Q230,90 240,70' },
+    { id: 'dedo4', nombre: '4º Dedo', path: 'M280,80 Q295,65 310,80 Q315,100 310,120 Q295,130 280,120 Q270,100 280,80' },
+    { id: 'dedo5', nombre: '5º Dedo', path: 'M320,95 Q335,80 350,95 Q355,115 350,135 Q335,145 320,135 Q310,115 320,95' },
     { id: 'metatarso', nombre: 'Metatarso', path: 'M130,100 L370,100 L380,180 L120,180 Z' },
     { id: 'empeine', nombre: 'Empeine', path: 'M120,180 L380,180 L370,260 L130,260 Z' },
     { id: 'talon', nombre: 'Talón', path: 'M130,260 L370,260 L360,340 L140,340 Z' },

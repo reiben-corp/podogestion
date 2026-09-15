@@ -61,18 +61,31 @@ async def crear_historia(
 @router.get("/", response_model=HistoriaClinicaListResponse)
 async def listar_historias(
     pagina: int = Query(1, ge=1),
-    por_pagina: int = Query(20, ge=1, le=100),
+    por_pagina: int = Query(100, ge=1, le=200),
     paciente_id: Optional[int] = Query(None),
+    busqueda: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     Lista historias clínicas con filtros opcionales.
     """
+    from app.models.paciente import Paciente
+    
     query = db.query(HistoriaClinica).filter(HistoriaClinica.is_active == True)
     
     if paciente_id:
         query = query.filter(HistoriaClinica.paciente_id == paciente_id)
+    
+    if busqueda:
+        filtro = f"%{busqueda}%"
+        query = query.join(Paciente).filter(
+            (Paciente.nombre.ilike(filtro)) |
+            (Paciente.apellidos.ilike(filtro)) |
+            (Paciente.dni.ilike(filtro)) |
+            (HistoriaClinica.numero_historia.ilike(filtro)) |
+            (HistoriaClinica.motivo_consulta.ilike(filtro))
+        )
     
     total = query.count()
     offset = (pagina - 1) * por_pagina
@@ -169,6 +182,7 @@ async def eliminar_historia(
 @router.get("/paciente/{paciente_id}", response_model=List[HistoriaClinicaResponse])
 async def historias_paciente(
     paciente_id: int,
+    por_pagina: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -176,7 +190,7 @@ async def historias_paciente(
     Obtiene todas las historias clínicas de un paciente.
     """
     historias = obtener_historias_paciente(db, paciente_id)
-    return [enriquecer_historia(h) for h in historias]
+    return [enriquecer_historia(h) for h in historias[:por_pagina]]
 
 
 @router.get("/paciente/{paciente_id}/ultima", response_model=HistoriaClinicaResponse)
