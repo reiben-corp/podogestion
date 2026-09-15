@@ -66,12 +66,13 @@ def _verificar_token(token: str, paciente_id: int) -> bool:
 def get_documentos_dir(db: Session) -> str:
     """Obtiene la ruta de almacenamiento desde la configuración."""
     from app.models.configuracion import Configuracion
+    from app.core.static_files import get_documentos_dir as get_dir
     config = db.query(Configuracion).filter(Configuracion.clave == "documentos_ruta").first()
     if config and config.valor:
         ruta = os.path.join(BASE_DIR, config.valor)
         os.makedirs(ruta, exist_ok=True)
         return ruta
-    return DEFAULT_DOCUMENTOS_DIR
+    return get_dir()
 
 
 router = APIRouter(prefix="/api/documentos", tags=["documentos"], redirect_slashes=False)

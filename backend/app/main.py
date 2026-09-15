@@ -68,11 +68,32 @@ def seed_configuraciones():
         db.close()
 
 
+def aplicar_configuracion_documentos():
+    """Aplica la ruta de documentos de consentimiento desde la configuración."""
+    db = SessionLocal()
+    try:
+        from app.models.configuracion import Configuracion
+        from app.core.static_files import set_documentos_dir
+        
+        config = db.query(Configuracion).filter(
+            Configuracion.clave == "documentos_ruta"
+        ).first()
+        
+        if config and config.valor:
+            set_documentos_dir(config.valor)
+            print(f"📁 Ruta de documentos configurada: {config.valor}")
+    except Exception as e:
+        print(f"⚠️ Error aplicando configuración de documentos: {e}")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Evento de inicio de la aplicación."""
     # Startup
     seed_configuraciones()
+    aplicar_configuracion_documentos()
     yield
     # Shutdown (si se necesita)
 
