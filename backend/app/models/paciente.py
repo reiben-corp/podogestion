@@ -31,10 +31,10 @@ class Paciente(Base):
     
     # Identificación
     id = Column(Integer, primary_key=True, index=True)
-    # numero_historia: formato PAC-{id:05d} (ej: PAC-00001, PAC-00002).
+    # codigo_paciente: formato PAC-{id:05d} (ej: PAC-00001, PAC-00002).
     # Se genera en el servicio DESPUÉS de flush/commit, cuando el id ya está asignado.
-    # Ejemplo: self.numero_historia = f"PAC-{self.id:05d}"
-    numero_historia = Column(String(20), unique=True, index=True, nullable=False)
+    # Ejemplo: self.codigo_paciente = f"PAC-{self.id:05d}"
+    codigo_paciente = Column(String(20), unique=True, index=True, nullable=False)
     
     # Datos demográficos
     nombre = Column(String(100), nullable=False)

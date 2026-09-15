@@ -9,7 +9,7 @@ import { formatearFecha } from '../utils/fecha';
 
 interface Paciente {
   id: number;
-  numero_historia: string;
+  codigo_paciente: string;
   nombre: string;
   apellidos: string;
   telefono: string;
@@ -181,7 +181,7 @@ function Pacientes() {
                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>No se encontraron pacientes</td></tr>
               ) : pacientes.map((p) => (
                 <tr key={p.id}>
-                  <td>{p.numero_historia}</td>
+                  <td>{p.codigo_paciente}</td>
                   <td>{p.nombre} {p.apellidos}</td>
                   <td>{p.telefono || '—'}</td>
                   <td>{p.edad || '—'}</td>
@@ -228,7 +228,7 @@ function Pacientes() {
               <h3 style={{ margin:0, fontSize:'1.1rem', fontWeight:700 }}>
                 {pacienteSeleccionado.nombre} {pacienteSeleccionado.apellidos}
                 <span style={{ fontSize:'0.85rem', color:'var(--gray-600)', fontWeight:600, marginLeft:'0.75rem' }}>
-                  — {pacienteSeleccionado.numero_historia}
+                  — {pacienteSeleccionado.codigo_paciente}
                 </span>
               </h3>
               <div style={{ display:'flex', gap:'0.5rem', flexShrink:0 }}>
@@ -427,7 +427,7 @@ function Pacientes() {
                       <div style={{ padding:'1rem', backgroundColor:'#f8f9fa', borderRadius:'8px' }}>
                         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.5rem' }}>
                           <div><strong>Fecha:</strong> {formatearFecha(detalleConsulta.fecha_consulta)}</div>
-                          <div><strong>HC:</strong> {detalleConsulta.numero_historia}</div>
+                          <div><strong>Código:</strong> {detalleConsulta.codigo_paciente}</div>
                         </div>
                         <div><strong>Motivo:</strong> {detalleConsulta.motivo_consulta || '-'}</div>
                         <div><strong>Diagnóstico:</strong> {detalleConsulta.diagnostico || '-'}</div>
@@ -474,7 +474,7 @@ function Pacientes() {
         <div className="modal-overlay" onClick={() => setMostrarModalEdit(false)}>
           <div className="modal edit-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '950px', maxHeight: '92vh', overflowY: 'auto', padding: 0 }}>
             <div className="ficha-modal-header">
-              <h2>✏️ Editar Paciente — {pacienteSeleccionado.numero_historia}</h2>
+              <h2>✏️ Editar Paciente — {pacienteSeleccionado.codigo_paciente}</h2>
               <button onClick={() => setMostrarModalEdit(false)} className="btn btn-secondary btn-sm">✕</button>
             </div>
             <FormPaciente

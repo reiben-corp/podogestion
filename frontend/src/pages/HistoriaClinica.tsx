@@ -130,7 +130,7 @@ function HistoriaClinica() {
             <option value="">-- Ver todas las historias recientes --</option>
             {pacientes.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.nombre} {p.apellidos} ({p.numero_historia})
+                {p.nombre} {p.apellidos} ({p.codigo_paciente})
               </option>
             ))}
           </select>

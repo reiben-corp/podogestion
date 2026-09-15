@@ -39,7 +39,19 @@ Solución aplicada: guardar `_originalIndex` en el map y re-ordenar después del
 
 ---
 
-### 3. Integridad de Datos
+### 3. Nomenclatura de Campos
+
+| Tabla | Campo | Descripción |
+|-------|-------|-------------|
+| `pacientes` | `codigo_paciente` | Código único del paciente (`PAC-{id:05d}`) |
+| `historias_clinicas` | `numero_historia` | Número de historia clínica (`HC-{paciente}-{consulta}`) |
+
+**⚠️ IMPORTANTE (2026-09-15):** El campo `numero_historia` en la tabla `pacientes` fue renombrado a `codigo_paciente`.  
+El nombre `numero_historia` es reservado exclusivamente para la tabla `historias_clinicas`.
+
+---
+
+### 4. Integridad de Datos
 
 - **No puede existir** una historia clínica sin un paciente existente y activo.
 - **No puede existir** una cita sin un paciente Y un profesional existentes y activos.
@@ -49,7 +61,7 @@ Solución aplicada: guardar `_originalIndex` en el map y re-ordenar después del
 
 ---
 
-### 4. Relaciones entre Tablas
+### 5. Relaciones entre Tablas
 
 ```
 PACIENTES (entidad central)
@@ -78,7 +90,7 @@ DOCUMENTOS_FACTURACION
 
 ---
 
-### 5. Formato de Fecha y Zona Horaria
+### 6. Formato de Fecha y Zona Horaria
 
 **Regla inquebrantable:** Todas las fechas se muestran en formato **`dd/mm/aa`** (día/mes/año de 2 dígitos).
 
@@ -141,6 +153,7 @@ Antes de CADA cambio en el backend, verificar que:
 | 2026-09-13 | Orden Promise.all | Frontend debe preservar orden tras peticiones asíncronas |
 | 2026-09-13 | Post-flush IDs | Ningún ID correlativo se asigna antes de flush |
 | 2026-09-13 | Formato fechas | `dd/mm/aa` en todo el proyecto. UTC+2 Europe/Madrid. Frontend usa `formatearFecha()` |
+| 2026-09-15 | Renombrar campo | `numero_historia` en `pacientes` renombrado a `codigo_paciente` |
 
 ---
 
@@ -158,11 +171,11 @@ Antes de CADA cambio en el backend, verificar que:
 
 ---
 
-*Última actualización: 2026-09-13*
+*Última actualización: 2026-09-15*
 
 ---
 
-## 📋 Módulo Pacientes — Verificación Completa (2026-09-13)
+## 📋 Módulo Pacientes — Verificación Completa (2026-09-15)
 
 ### Estado: ✅ FUNCIONAL
 
@@ -176,7 +189,7 @@ Antes de CADA cambio en el backend, verificar que:
 | Cerrar ficha | ✅ | Reset de estados + remover `body.ficha-abierta` |
 
 ### Campos que se muestran en la ficha:
-- **Identificación**: Registro ID, Nombre completo, DNI, Fecha nacimiento, Edad, Sexo, Estado civil, Profesión
+- **Identificación**: Código paciente (PAC-{id}), Nombre completo, DNI, Fecha nacimiento, Edad, Sexo, Estado civil, Profesión
 - **Contacto**: Teléfono, Email, Dirección, Ciudad, CP, 🚨 Emergencia (con estilo)
 - **Salud**: Diabetes + detalle, Cardiovasculares + detalle, Coagulación + detalle, Reumáticas + detalle, Neurológicas + detalle, Óseas + detalle, Hepatitis/VIH + detalle, Embarazada + detalle, Alergias, Medicación, Antecedentes
 - **Podología**: Cirugías, Calzado, Plantillas + **detalle**, Traumatismos + **detalle**

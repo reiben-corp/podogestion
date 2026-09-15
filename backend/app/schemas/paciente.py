@@ -137,7 +137,7 @@ class PacienteUpdate(BaseModel):
 class PacienteResponse(PacienteBase):
     """Datos del paciente que se devuelven al cliente."""
     id: int
-    numero_historia: str
+    codigo_paciente: str
     consentimiento_datos: bool
     consentimiento_fecha: Optional[datetime] = None
     consentimiento_tratamiento: bool

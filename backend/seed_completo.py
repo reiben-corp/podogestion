@@ -3,7 +3,7 @@ Script de seed para datos de prueba interrelacionados.
 Genera pacientes, historias clínicas, facturas e inventario.
 
 Nomenclatura de IDs:
-- Paciente.numero_historia: PAC-{id:05d} (ej: PAC-00001)
+- Paciente.codigo_paciente: PAC-{id:05d} (ej: PAC-00001)
 - HistoriaClinica.numero_historia: HC-{paciente_id:05d}-{num_consulta:03d} (ej: HC-00001-001)
 - DocumentoFacturacion.numero: {TIPO}-{year}-{id:05d} (ej: FAC-2026-00001, PRE-2026-00001)
 - Producto.codigo: INV-{id:05d} (ej: INV-00001)
@@ -201,7 +201,7 @@ def seed_pacientes(db, num_pacientes=15):
             db.add(paciente)
             db.flush()
             # Asignar número de historia basado en PK: PAC-{id:05d}
-            paciente.numero_historia = f"PAC-{paciente.id:05d}"
+            paciente.codigo_paciente = f"PAC-{paciente.id:05d}"
             pacientes.append(paciente)
     
     db.commit()

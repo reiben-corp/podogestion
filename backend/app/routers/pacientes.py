@@ -20,12 +20,12 @@ from app.schemas.paciente import (
 
 router = APIRouter(prefix="/api/pacientes", tags=["Pacientes"])
 
-# Formato de numero_historia: PAC-{id:05d} (basado en PK, asignado después de flush)
+# Formato de codigo_paciente: PAC-{id:05d} (basado en PK, asignado después de flush)
 
 
-def generar_numero_historia(db: Session, paciente_id: int) -> str:
+def generar_codigo_paciente(db: Session, paciente_id: int) -> str:
     """
-    Genera un número de historia clínico único.
+    Genera un código de paciente único.
     Formato: PAC-{id:05d} (basado en PK después de flush)
     """
     return f"PAC-{paciente_id:05d}"
@@ -39,7 +39,7 @@ async def crear_paciente(
 ):
     """
     Crea un nuevo paciente en el sistema.
-    Genera automáticamente el número de historia clínica.
+    Genera automáticamente el código de paciente.
     DNI es obligatorio y único.
     """
     if not paciente_data.dni or not paciente_data.dni.strip():
@@ -56,7 +56,7 @@ async def crear_paciente(
         )
     
     nuevo_paciente = Paciente(
-        numero_historia="TEMP",  # Se actualizará después de flush con PAC-{id:05d}
+        codigo_paciente="TEMP",  # Se actualizará después de flush con PAC-{id:05d}
         nombre=paciente_data.nombre,
         apellidos=paciente_data.apellidos,
         fecha_nacimiento=paciente_data.fecha_nacimiento,
@@ -110,8 +110,8 @@ async def crear_paciente(
     db.add(nuevo_paciente)
     db.flush()  # Para obtener el ID
 
-    # Asignar número de historia basado en PK: PAC-{id:05d}
-    nuevo_paciente.numero_historia = f"PAC-{nuevo_paciente.id:05d}"
+    # Asignar código de paciente basado en PK: PAC-{id:05d}
+    nuevo_paciente.codigo_paciente = f"PAC-{nuevo_paciente.id:05d}"
     
     db.commit()
     db.refresh(nuevo_paciente)

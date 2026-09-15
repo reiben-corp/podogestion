@@ -103,7 +103,7 @@ async def subir_documento_consentimiento(
         )
     
     documentos_dir = get_documentos_dir(db)
-    filename = f"consentimiento_{paciente.numero_historia}_{uuid.uuid4().hex[:8]}{ext}"
+    filename = f"consentimiento_{paciente.codigo_paciente}_{uuid.uuid4().hex[:8]}{ext}"
     filepath = os.path.join(documentos_dir, filename)
     
     with open(filepath, "wb") as f:
@@ -251,9 +251,9 @@ def _servir_archivo(filepath: str, paciente: Paciente):
 
     return FileResponse(
         path=filepath,
-        filename=f"consentimiento_{paciente.numero_historia}{ext}",
+        filename=f"consentimiento_{paciente.codigo_paciente}{ext}",
         media_type=media_type,
         headers={
-            "Content-Disposition": f"inline; filename=consentimiento_{paciente.numero_historia}{ext}"
+            "Content-Disposition": f"inline; filename=consentimiento_{paciente.codigo_paciente}{ext}"
         }
     )
