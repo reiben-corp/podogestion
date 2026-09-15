@@ -219,251 +219,354 @@ function Pacientes() {
         </div>
       )}
 
-      {/* Modal: Ficha del Paciente — Mismo tamaño que form nuevo paciente */}
+      {/* Modal: Ficha del Paciente — Rediseño según guía */}
       {pacienteSeleccionado && !mostrarModalEdit && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && cerrarFicha()}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px', maxHeight: '90vh', padding: 0 }}>
-            {/* Header fijo - mismo estilo que form */}
-            <div style={{ padding: '1rem', borderBottom: '2px solid var(--gray-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin:0, fontSize:'1.1rem', fontWeight:700 }}>
-                {pacienteSeleccionado.nombre} {pacienteSeleccionado.apellidos}
-                <span style={{ fontSize:'0.85rem', color:'var(--gray-600)', fontWeight:600, marginLeft:'0.75rem' }}>
-                  — {pacienteSeleccionado.codigo_paciente}
-                </span>
-              </h3>
-              <div style={{ display:'flex', gap:'0.5rem', flexShrink:0 }}>
+          <div className="modal ficha-modal" onClick={(e) => e.stopPropagation()}>
+            {/* ═══ HEADER ═══ */}
+            <div className="ficha-header">
+              <div className="ficha-header-titulo">
+                <h3>{pacienteSeleccionado.nombre} {pacienteSeleccionado.apellidos}</h3>
+                <span className="ficha-codigo">{pacienteSeleccionado.codigo_paciente}</span>
+              </div>
+              <div className="ficha-header-botones">
                 <Link to={`/historia-clinica?paciente=${pacienteSeleccionado.id}`} className="btn btn-primary btn-sm" style={{ textDecoration:'none' }}>+ Nueva Consulta</Link>
                 <button onClick={iniciarEdicion} className="btn btn-secondary btn-sm">✏️ Editar</button>
                 <button onClick={cerrarFicha} className="btn btn-secondary btn-sm">✕</button>
               </div>
             </div>
-            {/* Contenido - scroll si es necesario */}
-            <div style={{ padding:'0.5rem 1rem', overflowY: 'auto', maxHeight: 'calc(90vh - 120px)' }}>
+
+            {/* ═══ CONTENIDO ═══ */}
+            <div className="ficha-contenido">
               {cargandoDetalle ? (
-                <p style={{ color:'#666' }}>Cargando ficha...</p>
+                <p className="ficha-sin-datos">Cargando ficha...</p>
               ) : (
                 <>
-                  {/* 1. Datos de Identificación */}
+                  {/* ── 1. Datos de Identificación ── */}
                   <div className="ficha-seccion">
-                    <h4>📋 1. Datos de Identificación</h4>
-                    <div className="ficha-grid">
-                      <div className="ficha-fila">
-                        <span className="ficha-label">DNI:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.dni || '-'}</span>
+                    <div className="ficha-seccion-titulo">📋 1. Datos de Identificación</div>
+                    <div className="ficha-grid-2col">
+                      <div>
+                        <div className="ficha-campo-label">DNI</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.dni || '—'}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Fecha nac.:</span>
-                        <span className="ficha-valor">{formatearFecha(pacienteSeleccionado.fecha_nacimiento)}</span>
+                      <div>
+                        <div className="ficha-campo-label">Sexo</div>
+                        <div className="ficha-campo-valor">{getSexoLabel(pacienteSeleccionado.sexo)}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Edad:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.edad || '-'}</span>
+                      <div>
+                        <div className="ficha-campo-label">Fecha Nac.</div>
+                        <div className="ficha-campo-valor">{formatearFecha(pacienteSeleccionado.fecha_nacimiento)}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Sexo:</span>
-                        <span className="ficha-valor">{getSexoLabel(pacienteSeleccionado.sexo)}</span>
+                      <div>
+                        <div className="ficha-campo-label">Estado Civil</div>
+                        <div className="ficha-campo-valor">{getEstadoCivilLabel(pacienteSeleccionado.estado_civil)}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Estado civil:</span>
-                        <span className="ficha-valor">{getEstadoCivilLabel(pacienteSeleccionado.estado_civil)}</span>
+                      <div>
+                        <div className="ficha-campo-label">Edad</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.edad || '—'}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Profesión:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.profesion || '-'}</span>
+                      <div>
+                        <div className="ficha-campo-label">Profesión</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.profesion || '—'}</div>
                       </div>
                     </div>
                   </div>
-                  {/* 2. Datos de Contacto */}
+
+                  {/* ── 2. Datos de Contacto ── */}
                   <div className="ficha-seccion">
-                    <h4>📞 2. Datos de Contacto</h4>
-                    <div className="ficha-grid">
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Teléfono:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.telefono || '-'}</span>
+                    <div className="ficha-seccion-titulo">📞 2. Datos de Contacto</div>
+                    <div className="ficha-contacto-fila">
+                      <div className="ficha-contacto-campo">
+                        <div className="ficha-campo-label">Teléfono</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.telefono || '—'}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Email:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.email || '-'}</span>
+                      <div className="ficha-contacto-campo ficha-contacto-campo-wide">
+                        <div className="ficha-campo-label">Email</div>
+                        <div className="ficha-campo-valor" style={{ wordBreak: 'break-all' }}>{pacienteSeleccionado.email || '—'}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">Ciudad:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.ciudad || '-'}</span>
+                    </div>
+                    <div className="ficha-contacto-fila">
+                      <div className="ficha-contacto-campo ficha-contacto-campo-wide">
+                        <div className="ficha-campo-label">Dirección</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.direccion || '—'}</div>
                       </div>
-                      <div className="ficha-fila">
-                        <span className="ficha-label">C.P.:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.codigo_postal || '-'}</span>
+                      <div className="ficha-contacto-campo">
+                        <div className="ficha-campo-label">Ciudad</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.ciudad || '—'}</div>
                       </div>
-                      <div className="ficha-fila" style={{ gridColumn: 'span 4' }}>
-                        <span className="ficha-label">Dirección:</span>
-                        <span className="ficha-valor">{pacienteSeleccionado.direccion || '-'}</span>
+                      <div className="ficha-contacto-campo">
+                        <div className="ficha-campo-label">C.P.</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.codigo_postal || '—'}</div>
                       </div>
                     </div>
                     {(pacienteSeleccionado.contacto_emergencia || pacienteSeleccionado.telefono_emergencia) && (
-                      <div className="ficha-alerta ficha-alerta-danger" style={{ marginTop: '0.5rem' }}>
-                        <div className="ficha-fila">
-                          <span className="ficha-label">🚨 Contacto de Emergencia:</span>
-                          <span className="ficha-valor">
-                            {pacienteSeleccionado.contacto_emergencia && <span>{pacienteSeleccionado.contacto_emergencia}</span>}
-                            {pacienteSeleccionado.telefono_emergencia && <span> — 📞 {pacienteSeleccionado.telefono_emergencia}</span>}
-                          </span>
+                      <div className="ficha-emergencia">
+                        🚨 Contacto de Emergencia: {pacienteSeleccionado.contacto_emergencia}
+                        {pacienteSeleccionado.telefono_emergencia && <> — 📞 {pacienteSeleccionado.telefono_emergencia}</>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── 3. Antecedentes de Salud ── */}
+                  <div className="ficha-seccion">
+                    <div className="ficha-seccion-titulo">🩺 3. Antecedentes de Salud</div>
+                    <div className="ficha-seccion-body">
+                      {(pacienteSeleccionado.diabetes || pacienteSeleccionado.problemas_cardiovasculares || pacienteSeleccionado.problemas_coagulacion || pacienteSeleccionado.enfermedades_reumaticas || pacienteSeleccionado.enfermedades_neurologicas || pacienteSeleccionado.enfermedades_oseas || pacienteSeleccionado.hepatitis_vih || pacienteSeleccionado.embarazada) ? (
+                        <>
+                          {pacienteSeleccionado.diabetes && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-rojo">⚕️ Diabetes</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.diabetes_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                          {pacienteSeleccionado.problemas_cardiovasculares && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-rojo">❤️ Cardiovascular</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.problemas_cardiovasculares_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                          {pacienteSeleccionado.problemas_coagulacion && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-rojo">🩸 Coagulación</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.problemas_coagulacion_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                          {pacienteSeleccionado.enfermedades_reumaticas && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-amarillo">🔗 Reumática</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.enfermedades_reumaticas_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                          {pacienteSeleccionado.enfermedades_neurologicas && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-amarillo">🧠 Neurológica</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.enfermedades_neurologicas_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                          {pacienteSeleccionado.enfermedades_oseas && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-amarillo">🦴 Ósea</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.enfermedades_oseas_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                          {pacienteSeleccionado.hepatitis_vih && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-rojo">🦠 Hepatitis/VIH</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.hepatitis_vih_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                          {pacienteSeleccionado.embarazada && (
+                            <div className="ficha-antecedente-item">
+                              <span className="ficha-antecedente-badge badge-azul">🤰 Embarazo</span>
+                              <span className="ficha-antecedente-detalle">{pacienteSeleccionado.embarazada_detalle || 'Sin detalles'}</span>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <p className="ficha-sin-datos">Sin antecedentes médicos registrados</p>
+                      )}
+
+                      {pacienteSeleccionado.alergias && (
+                        <div style={{ marginTop: '0.75rem' }}>
+                          <div className="ficha-antecedente-badge badge-rojo" style={{ marginBottom: '0.25rem' }}>⚠️ Alergias</div>
+                          <div className="ficha-antecedente-detalle">{pacienteSeleccionado.alergias}</div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                  {/* 3. Antecedentes Generales */}
-                  <div className="ficha-seccion">
-                    <h4>🩺 3. Antecedentes Generales</h4>
-                    {pacienteSeleccionado.alergias && (
-                      <div className="ficha-medica ficha-medica-alergias">
-                        <strong>⚠️ Alergias:</strong> {pacienteSeleccionado.alergias}
-                      </div>
-                    )}
-                    {pacienteSeleccionado.medicacion_actual && (
-                      <div className="ficha-medica ficha-medica-medicacion">
-                        <strong>💊 Medicación:</strong> {pacienteSeleccionado.medicacion_actual}
-                      </div>
-                    )}
-                    {pacienteSeleccionado.antecedentes && (
-                      <div className="ficha-medica ficha-medica-antecedentes">
-                        <strong>📝 Antecedentes:</strong> {pacienteSeleccionado.antecedentes}
-                      </div>
-                    )}
-                    {!pacienteSeleccionado.alergias && !pacienteSeleccionado.medicacion_actual && !pacienteSeleccionado.antecedentes && (
-                      <p style={{ color:'#999', fontSize:'0.82rem', margin:0 }}>Sin antecedentes registrados</p>
-                    )}
-                  </div>
-                  {/* 4. Antecedentes Podológicos */}
-                  <div className="ficha-seccion">
-                    <h4>🦶 4. Antecedentes Podológicos</h4>
-                    <div className="ficha-antecedentes">
-                      {pacienteSeleccionado.diabetes && (<div className="antecedente-item"><span className="badge badge-danger">DIABETES</span><span className="detalle">{pacienteSeleccionado.diabetes_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.problemas_cardiovasculares && (<div className="antecedente-item"><span className="badge badge-danger">CARDIOVASCULAR</span><span className="detalle">{pacienteSeleccionado.problemas_cardiovasculares_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.problemas_coagulacion && (<div className="antecedente-item"><span className="badge badge-danger">COAGULACIÓN</span><span className="detalle">{pacienteSeleccionado.problemas_coagulacion_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.enfermedades_reumaticas && (<div className="antecedente-item"><span className="badge badge-warning">REUMÁTICA</span><span className="detalle">{pacienteSeleccionado.enfermedades_reumaticas_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.enfermedades_neurologicas && (<div className="antecedente-item"><span className="badge badge-warning">NEUROLÓGICA</span><span className="detalle">{pacienteSeleccionado.enfermedades_neurologicas_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.enfermedades_oseas && (<div className="antecedente-item"><span className="badge badge-warning">ÓSEA</span><span className="detalle">{pacienteSeleccionado.enfermedades_oseas_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.hepatitis_vih && (<div className="antecedente-item"><span className="badge badge-danger">HEPATITIS/VIH</span><span className="detalle">{pacienteSeleccionado.hepatitis_vih_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.embarazada && (<div className="antecedente-item"><span className="badge badge-info">EMBARAZO</span><span className="detalle">{pacienteSeleccionado.embarazada_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.traumatismos_pies && (<div className="antecedente-item"><span className="badge badge-warning">TRAUMATISMOS</span><span className="detalle">{pacienteSeleccionado.traumatismos_pies_detalle || 'Sin detalles'}</span></div>)}
-                      {pacienteSeleccionado.plantillas_previas && (<div className="antecedente-item"><span className="badge badge-info">PLANTILLAS</span><span className="detalle">{pacienteSeleccionado.plantillas_previas_detalle || 'Sin detalles'}</span></div>)}
-                    </div>
-                    {(pacienteSeleccionado.cirugias_previas || pacienteSeleccionado.deporte || pacienteSeleccionado.fumador || pacienteSeleccionado.tipo_calzado) && (
-                      <div style={{ marginTop:'0.5rem', display:'flex', flexWrap:'wrap', gap:'0.75rem', fontSize:'0.82rem' }}>
-                        {pacienteSeleccionado.cirugias_previas && <span><strong>Cirugías:</strong> {pacienteSeleccionado.cirugias_previas}</span>}
-                        {pacienteSeleccionado.deporte && <span><strong>Deporte:</strong> {pacienteSeleccionado.frecuencia_deporte || 'Sí'}</span>}
-                        {pacienteSeleccionado.tipo_calzado && <span><strong>Calzado:</strong> {pacienteSeleccionado.tipo_calzado}</span>}
-                        {pacienteSeleccionado.horas_pie_dia && <span><strong>Horas pie/día:</strong> {pacienteSeleccionado.horas_pie_dia}</span>}
-                        {pacienteSeleccionado.fumador && <span><strong>Fumador:</strong> Sí</span>}
-                      </div>
-                    )}
-                  </div>
-                  {/* 5. Consentimientos RGPD */}
-                  <div className="ficha-seccion">
-                    <h4>📜 5. Consentimiento y Protección de Datos (RGPD)</h4>
-                    <div className="ficha-grid">
-                      <div><strong>Consent. datos:</strong>{' '}
-                        {pacienteSeleccionado.consentimiento_datos ? <span className="badge badge-success">✓ Firmado</span> : <span className="badge badge-danger">✗ No firmado</span>}
-                      </div>
-                      <div><strong>Consent. tratamiento:</strong>{' '}
-                        {pacienteSeleccionado.consentimiento_tratamiento ? <span className="badge badge-success">✓ Firmado</span> : <span className="badge badge-danger">✗ No firmado</span>}
-                      </div>
-                      {pacienteSeleccionado.consentimiento_fecha && (
-                        <div><strong>Fecha:</strong> {formatearFecha(pacienteSeleccionado.consentimiento_fecha)}</div>
+                      )}
+
+                      {pacienteSeleccionado.medicacion_actual && (
+                        <div style={{ marginTop: '0.5rem' }}>
+                          <div className="ficha-antecedente-badge badge-azul" style={{ marginBottom: '0.25rem' }}>💊 Medicación Actual</div>
+                          <div className="ficha-antecedente-detalle">{pacienteSeleccionado.medicacion_actual}</div>
+                        </div>
+                      )}
+
+                      {pacienteSeleccionado.antecedentes && (
+                        <div style={{ marginTop: '0.5rem' }}>
+                          <div className="ficha-antecedente-badge" style={{ background: 'var(--gray-100)', color: 'var(--gray-700)', marginBottom: '0.25rem' }}>📝 Antecedentes médicos</div>
+                          <div className="ficha-antecedente-detalle">{pacienteSeleccionado.antecedentes}</div>
+                        </div>
                       )}
                     </div>
                   </div>
-                  {/* 6. Documento de Consentimiento */}
+
+                  {/* ── 4. Antecedentes Podológicos ── */}
                   <div className="ficha-seccion">
-                    <h4>📄 6. Documento de Consentimiento</h4>
-                    {pacienteSeleccionado.documento_consentimiento ? (
-                      <div style={{ display:'flex', alignItems:'center', gap:'1rem', flexWrap:'wrap' }}>
-                        <span className="badge badge-success" style={{ fontSize:'0.85rem', padding:'0.4rem 0.75rem' }}>✓ Documento disponible</span>
-                        <button className="btn btn-secondary btn-sm" onClick={async () => {
-                          try {
-                            const tokenResp = await apiClient.post(`/documentos/token/${pacienteSeleccionado.id}`);
-                            window.open(`/documentos/ver/${pacienteSeleccionado.id}?token=${tokenResp.data.token}`, '_blank');
-                          } catch (err: any) { alert(err.response?.data?.detail || 'Error'); }
-                        }}>Ver documento</button>
-                        <button className="btn btn-danger btn-sm" onClick={async () => {
-                          if (!confirm('¿Eliminar el documento?')) return;
-                          try {
-                            await apiClient.delete(`/documentos/consentimiento/${pacienteSeleccionado.id}`);
-                            alert('Documento eliminado');
-                            verFicha(pacienteSeleccionado);
-                          } catch (err: any) { alert(err.response?.data?.detail || 'Error'); }
-                        }}>🗑️ Eliminar</button>
+                    <div className="ficha-seccion-titulo">🦶 4. Antecedentes Podológicos</div>
+                    <div className="ficha-seccion-body">
+                      <div className="ficha-podo-grid">
+                        {pacienteSeleccionado.traumatismos_pies && (
+                          <div className="ficha-podo-item">
+                            <span className="ficha-antecedente-badge badge-amarillo">Traumatismos</span>
+                            <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.traumatismos_pies_detalle || 'Sin detalles'}</div>
+                          </div>
+                        )}
+                        {pacienteSeleccionado.plantillas_previas && (
+                          <div className="ficha-podo-item">
+                            <span className="ficha-antecedente-badge badge-azul">Plantillas</span>
+                            <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.plantillas_previas_detalle || 'Sin detalles'}</div>
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <>
-                        <span className="badge badge-warning" style={{ fontSize:'0.85rem', padding:'0.4rem 0.75rem' }}>📤 Pendiente de subir</span>
-                        <div style={{ marginTop:'1rem' }}>
-                          <input type="file" id="documento-consentimiento" accept=".pdf,.jpg,.jpeg,.png" style={{ display:'none' }}
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              const fd = new FormData();
-                              fd.append('file', file);
+
+                      {pacienteSeleccionado.cirugias_previas && (
+                        <div style={{ marginTop: '0.75rem' }}>
+                          <div className="ficha-campo-label ficha-cirugias" style={{ marginBottom: '0.25rem' }}>Cirugías Previas</div>
+                          <div className="ficha-antecedente-detalle">{pacienteSeleccionado.cirugias_previas}</div>
+                        </div>
+                      )}
+
+                      <div style={{ marginTop: '0.75rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                        {pacienteSeleccionado.deporte && (
+                          <div className="ficha-podo-item">
+                            <span className="ficha-antecedente-badge badge-azul">Deporte</span>
+                            <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.frecuencia_deporte || 'Sí'}</div>
+                          </div>
+                        )}
+                        {pacienteSeleccionado.tipo_calzado && (
+                          <div className="ficha-podo-item">
+                            <span className="ficha-antecedente-badge badge-azul">Calzado</span>
+                            <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.tipo_calzado}</div>
+                          </div>
+                        )}
+                        {pacienteSeleccionado.horas_pie_dia && (
+                          <div className="ficha-podo-item">
+                            <span className="ficha-antecedente-badge badge-amarillo">Horas pie/día</span>
+                            <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.horas_pie_dia}</div>
+                          </div>
+                        )}
+                        {pacienteSeleccionado.fumador && (
+                          <div className="ficha-podo-item">
+                            <span className="ficha-antecedente-badge badge-rojo">Fumador</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── 5. Consentimiento y Protección de Datos (RGPD) ── */}
+                  <div className="ficha-seccion">
+                    <div className="ficha-seccion-titulo">📜 5. Consentimiento y Protección de Datos (RGPD)</div>
+                    <div className="ficha-seccion-body">
+                      <div className="ficha-rgpd-item">
+                        <span className={`ficha-rgpd-check ${pacienteSeleccionado.consentimiento_tratamiento ? 'rgpd-ok' : 'rgpd-ko'}`}>
+                          {pacienteSeleccionado.consentimiento_tratamiento ? '✓ Firmado' : '✗ No firmado'}
+                        </span>
+                        <span className="ficha-rgpd-label">Consent. Tratamiento Podológico</span>
+                      </div>
+                      <div className="ficha-rgpd-item">
+                        <span className={`ficha-rgpd-check ${pacienteSeleccionado.consentimiento_datos ? 'rgpd-ok' : 'rgpd-ko'}`}>
+                          {pacienteSeleccionado.consentimiento_datos ? '✓ Firmado' : '✗ No firmado'}
+                        </span>
+                        <span className="ficha-rgpd-label">Consent. Tratamiento Datos Personales</span>
+                      </div>
+                      {pacienteSeleccionado.consentimiento_fecha && (
+                        <div className="ficha-rgpd-fecha-linea">
+                          <span className="ficha-rgpd-label">Fecha:</span>
+                          <span className="ficha-rgpd-fecha">{formatearFecha(pacienteSeleccionado.consentimiento_fecha)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ── 6. Documento de Consentimiento ── */}
+                  <div className="ficha-seccion">
+                    <div className="ficha-seccion-titulo">📄 6. Documento de Consentimiento</div>
+                    <div className="ficha-seccion-body">
+                      <div className="ficha-doc-botones">
+                        {pacienteSeleccionado.documento_consentimiento ? (
+                          <>
+                            <span className="badge badge-success" style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}>✓ Documento disponible</span>
+                            <button className="btn btn-secondary btn-sm" onClick={async () => {
                               try {
-                                await documentosApi.post(`/documentos/consentimiento/${pacienteSeleccionado.id}`, fd);
-                                alert('Documento subido');
+                                const tokenResp = await apiClient.post(`/documentos/token/${pacienteSeleccionado.id}`);
+                                window.open(`/documentos/ver/${pacienteSeleccionado.id}?token=${tokenResp.data.token}`, '_blank');
+                              } catch (err: any) { alert(err.response?.data?.detail || 'Error'); }
+                            }}>Ver documento</button>
+                            <button className="btn btn-danger btn-sm" onClick={async () => {
+                              if (!confirm('¿Eliminar el documento?')) return;
+                              try {
+                                await apiClient.delete(`/documentos/consentimiento/${pacienteSeleccionado.id}`);
+                                alert('Documento eliminado');
                                 verFicha(pacienteSeleccionado);
                               } catch (err: any) { alert(err.response?.data?.detail || 'Error'); }
-                            }}
-                          />
-                          <button className="btn btn-primary btn-sm" onClick={() => document.getElementById('documento-consentimiento')?.click()}>
-                            Seleccionar archivo (PDF, JPG, PNG)
-                          </button>
-                        </div>
-                      </>
-                    )}
+                            }}>🗑️ Eliminar</button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="badge badge-warning" style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}>📤 Pendiente de subir</span>
+                            <input type="file" id="documento-consentimiento" accept=".pdf,.jpg,.jpeg,.png" style={{ display: 'none' }}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const fd = new FormData();
+                                fd.append('file', file);
+                                try {
+                                  await documentosApi.post(`/documentos/consentimiento/${pacienteSeleccionado.id}`, fd);
+                                  alert('Documento subido');
+                                  verFicha(pacienteSeleccionado);
+                                } catch (err: any) { alert(err.response?.data?.detail || 'Error'); }
+                              }}
+                            />
+                            <button className="btn btn-primary btn-sm" onClick={() => document.getElementById('documento-consentimiento')?.click()}>
+                              Seleccionar archivo (PDF, JPG, PNG)
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  {/* 7. Última Consulta (expandible) */}
+
+                  {/* ── 7. Última Consulta (expandible) ── */}
                   <div className="ficha-seccion">
-                    <h4 style={{ cursor:'pointer', display:'flex', alignItems:'center', gap:'0.5rem' }} onClick={() => setMostrarDetalleConsulta(!mostrarDetalleConsulta)}>
+                    <div className="ficha-seccion-titulo ficha-ultima-expensible" onClick={() => setMostrarDetalleConsulta(!mostrarDetalleConsulta)}>
                       📋 7. Última Consulta
-                      <span style={{ fontSize:'0.8rem', color:'#666' }}>{mostrarDetalleConsulta ? '▲ Ocultar' : '▼ Expandir'}</span>
-                    </h4>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginLeft: 'auto' }}>{mostrarDetalleConsulta ? '▲ Ocultar' : '▼ Expandir'}</span>
+                    </div>
                     {detalleConsulta ? (
-                      <div style={{ padding:'1rem', backgroundColor:'#f8f9fa', borderRadius:'8px' }}>
-                        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.5rem' }}>
-                          <div><strong>Fecha:</strong> {formatearFecha(detalleConsulta.fecha_consulta)}</div>
-                          <div><strong>Código:</strong> {detalleConsulta.codigo_paciente}</div>
+                      <div className="ficha-seccion-body">
+                        <div className="ficha-ultima-fecha">
+                          <strong>Fecha:</strong> {formatearFecha(detalleConsulta.fecha_consulta)}
+                          <span style={{ marginLeft: '1rem' }}><strong>Última Historia Clínica:</strong> {detalleConsulta.numero_historia}</span>
                         </div>
-                        <div><strong>Motivo:</strong> {detalleConsulta.motivo_consulta || '-'}</div>
-                        <div><strong>Diagnóstico:</strong> {detalleConsulta.diagnostico || '-'}</div>
+                        <div className="ficha-ultima-campo"><strong>Motivo:</strong> {detalleConsulta.motivo_consulta || '—'}</div>
+                        <div className="ficha-ultima-campo"><strong>Diagnóstico:</strong> {detalleConsulta.diagnostico || '—'}</div>
                         {mostrarDetalleConsulta && (
-                          <div style={{ marginTop:'1rem', paddingTop:'1rem', borderTop:'1px solid #dee2e6' }}>
-                            {detalleConsulta.antecedentes_personales && <div><strong>Antecedentes:</strong><p>{detalleConsulta.antecedentes_personales}</p></div>}
-                            {detalleConsulta.exploracion_fisica && <div><strong>Exploración:</strong><p>{detalleConsulta.exploracion_fisica}</p></div>}
-                            {detalleConsulta.plan_tratamiento && <div><strong>Plan:</strong><p>{detalleConsulta.plan_tratamiento}</p></div>}
-                            {detalleConsulta.evolucion && <div><strong>Evolución:</strong><p>{detalleConsulta.evolucion}</p></div>}
+                          <div className="ficha-ultima-body">
+                            {detalleConsulta.antecedentes_personales && <div className="ficha-ultima-campo"><strong>Antecedentes:</strong><p style={{ margin: '0.25rem 0 0' }}>{detalleConsulta.antecedentes_personales}</p></div>}
+                            {detalleConsulta.exploracion_fisica && <div className="ficha-ultima-campo"><strong>Exploración:</strong><p style={{ margin: '0.25rem 0 0' }}>{detalleConsulta.exploracion_fisica}</p></div>}
+                            {detalleConsulta.plan_tratamiento && <div className="ficha-ultima-campo"><strong>Plan:</strong><p style={{ margin: '0.25rem 0 0' }}>{detalleConsulta.plan_tratamiento}</p></div>}
+                            {detalleConsulta.evolucion && <div className="ficha-ultima-campo"><strong>Evolución:</strong><p style={{ margin: '0.25rem 0 0' }}>{detalleConsulta.evolucion}</p></div>}
                             {detalleConsulta.tratamientos && detalleConsulta.tratamientos.length > 0 && (
-                              <div>
+                              <div className="ficha-ultima-campo">
                                 <strong>Tratamientos:</strong>
                                 {detalleConsulta.tratamientos.map((t: any) => (
-                                  <div key={t.id} style={{ padding:'0.5rem', backgroundColor:'#fff', borderRadius:'4px', marginTop:'0.25rem', borderLeft:'3px solid #28a745' }}>
+                                  <div key={t.id} style={{ padding: '0.4rem', background: 'var(--gray-50)', borderRadius: '4px', marginTop: '0.25rem', borderLeft: '3px solid var(--success-500)' }}>
                                     <span className="badge badge-success">{t.tipo}</span>
-                                    <span style={{ marginLeft:'0.5rem' }}>{t.descripcion}</span>
+                                    <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>{t.descripcion}</span>
                                   </div>
                                 ))}
                               </div>
                             )}
-                            {detalleConsulta.observaciones && <div><strong>Observaciones:</strong><p>{detalleConsulta.observaciones}</p></div>}
+                            {detalleConsulta.observaciones && <div className="ficha-ultima-campo"><strong>Observaciones:</strong><p style={{ margin: '0.25rem 0 0' }}>{detalleConsulta.observaciones}</p></div>}
                           </div>
                         )}
                       </div>
                     ) : (
-                      <p style={{ color:'#666' }}>No hay consultas registradas</p>
+                      <div className="ficha-seccion-body">
+                        <p className="ficha-sin-datos">No hay consultas registradas</p>
+                      </div>
                     )}
-                  </div>
-                  {/* Botón: Ver todas las historias clínicas */}
-                  <div style={{ textAlign:'center', marginTop:'1rem', marginBottom:'0.5rem' }}>
-                    <Link to={`/historia-clinica?paciente=${pacienteSeleccionado.id}&ver=todas`} className="btn btn-secondary">
-                      📋 Ver Todas las Historias Clínicas
-                    </Link>
                   </div>
                 </>
               )}
+            </div>
+
+            {/* ═══ FOOTER ═══ */}
+            <div className="ficha-footer">
+              <Link to={`/historia-clinica?paciente=${pacienteSeleccionado.id}&ver=todas`} className="btn btn-secondary">
+                📋 VER HISTORIAS CLÍNICAS DEL PACIENTE
+              </Link>
             </div>
           </div>
         </div>
