@@ -971,13 +971,11 @@ body.ficha-abierta {
   align-items: center;
   gap: 0.4rem;
 }
+/* ================================================
+   FICHA DEL PACIENTE — ESTILOS
+   ================================================ */
 
-
-/* ═══════════════════════════════════════════════════════════════
-   FICHA DEL PACIENTE — Estilos del modal de ficha
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Header de la ficha */
+/* Modal */
 .ficha-modal {
   max-width: 650px;
   max-height: 90vh;
@@ -986,6 +984,7 @@ body.ficha-abierta {
   flex-direction: column;
 }
 
+/* Header */
 .ficha-header {
   display: flex;
   justify-content: space-between;
@@ -1024,29 +1023,14 @@ body.ficha-abierta {
   flex-shrink: 0;
 }
 
-/* Contenido scrolleable */
+/* Contenido */
 .ficha-contenido {
   padding: 0.75rem 1.25rem;
   overflow-y: auto;
   flex: 1;
 }
 
-/* Footer */
-.ficha-footer {
-  padding: 0.75rem 1.25rem;
-  border-top: 2px solid var(--gray-100);
-  background: var(--gray-50);
-  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-  display: flex;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.ficha-footer .btn {
-  min-width: 250px;
-}
-
-/* Sección con borde de tabla */
+/* Sección */
 .ficha-seccion {
   margin-bottom: 0.75rem;
   border: 1px solid var(--gray-200);
@@ -1071,7 +1055,7 @@ body.ficha-abierta {
   padding: 0.5rem 0.75rem;
 }
 
-/* Grid 2 columnas para identificación */
+/* Identificación */
 .ficha-grid-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1095,7 +1079,6 @@ body.ficha-abierta {
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--gray-500);
-  text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0.1rem;
 }
@@ -1107,32 +1090,55 @@ body.ficha-abierta {
   word-break: break-word;
 }
 
-/* Filas de contacto (flex) */
-.ficha-contacto-fila {
-  display: flex;
-  align-items: stretch;
+/* Contacto */
+.ficha-contacto-aligned {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 0;
   border-top: 1px solid var(--gray-100);
 }
 
-.ficha-contacto-fila:first-child {
+.ficha-contacto-aligned:first-child {
   border-top: none;
 }
 
-.ficha-contacto-campo {
-  flex: 1;
+.ficha-contacto-aligned-campo {
   padding: 0.4rem 0.6rem;
   border-right: 1px solid var(--gray-100);
 }
 
-.ficha-contacto-campo:last-child {
+.ficha-contacto-aligned-campo:last-child {
   border-right: none;
 }
 
-.ficha-contacto-campo-wide {
-  flex: 2;
+.ficha-contacto-aligned-campo-wide {
+  border-right: none !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
 }
 
-/* Alerta de emergencia */
+.ficha-contacto-subcampos {
+  display: flex;
+  gap: 0;
+}
+
+.ficha-contacto-subcampo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ficha-contacto-subcampo:first-child {
+  border-right: 1px solid var(--gray-100);
+  padding-right: 0.6rem;
+}
+
+.ficha-contacto-subcampo:last-child {
+  padding-left: 0.6rem;
+}
+
+/* Emergencia */
 .ficha-emergencia {
   padding: 0.6rem 0.75rem;
   background: #fef2f2;
@@ -1140,12 +1146,9 @@ body.ficha-abierta {
   font-size: 0.85rem;
   color: #dc2626;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-/* Antecedentes de salud — lista */
+/* Antecedentes */
 .ficha-antecedente-item {
   padding: 0.4rem 0;
   border-bottom: 1px solid var(--gray-100);
@@ -1168,6 +1171,7 @@ body.ficha-abierta {
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   width: fit-content;
+  text-transform: none;
 }
 
 .badge-rojo {
@@ -1191,7 +1195,7 @@ body.ficha-abierta {
   line-height: 1.4;
 }
 
-/* Podológicos — grid de campos */
+/* Podológicos */
 .ficha-podo-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1203,7 +1207,7 @@ body.ficha-abierta {
   color: var(--gray-700);
 }
 
-/* Consentimientos RGPD */
+/* RGPD */
 .ficha-rgpd-item {
   display: flex;
   align-items: center;
@@ -1229,7 +1233,31 @@ body.ficha-abierta {
   color: var(--gray-500);
 }
 
-/* Botones de documento */
+.rgpd-ok {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.rgpd-ko {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.ficha-rgpd-fecha-linea {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+}
+
+.ficha-rgpd-fecha-linea strong {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+/* Documento */
 .ficha-doc-botones {
   display: flex;
   align-items: center;
@@ -1237,13 +1265,13 @@ body.ficha-abierta {
   flex-wrap: wrap;
 }
 
-/* Última consulta expandible */
-.ficha-ultima-expansible {
+/* Última consulta */
+.ficha-ultima-expensable {
   cursor: pointer;
   user-select: none;
 }
 
-.ficha-ultima-expansible:hover {
+.ficha-ultima-expensable:hover {
   background: #ecfdf5;
 }
 
@@ -1283,32 +1311,6 @@ body.ficha-abierta {
   font-style: italic;
 }
 
-/* RGPD estados */
-.rgpd-ok {
-  color: #16a34a;
-  font-weight: 600;
-}
-
-.rgpd-ko {
-  color: #dc2626;
-  font-weight: 600;
-}
-
-/* Fecha RGPD en línea */
-.ficha-rgpd-fecha-linea {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--gray-700);
-}
-
-.ficha-rgpd-fecha-linea strong {
-  font-weight: 600;
-  color: var(--gray-900);
-}
-
 /* Responsive */
 @media (max-width: 480px) {
   .ficha-header {
@@ -1333,16 +1335,16 @@ body.ficha-abierta {
     border-bottom: none;
   }
   
-  .ficha-contacto-fila {
-    flex-direction: column;
+  .ficha-contacto-aligned {
+    grid-template-columns: 1fr;
   }
   
-  .ficha-contacto-campo {
+  .ficha-contacto-aligned-campo {
     border-right: none;
     border-bottom: 1px solid var(--gray-100);
   }
   
-  .ficha-contacto-campo:last-child {
+  .ficha-contacto-aligned-campo:last-child {
     border-bottom: none;
   }
   
