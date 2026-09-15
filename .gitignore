@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backend alembic
+backend/alembic/versions/*.pyc
+
+# Coverage / tests
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Build outputs
+frontend/dist/
+backend/dist/
+
+# Documentos de consentimiento (datos sensibles - GDPR)
+backend/documentos_consentimiento/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~

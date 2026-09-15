@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  # ─── Base de Datos PostgreSQL ────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: clinica_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-clinica}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clinica_secret_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-clinica_podologia}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clinica} -d ${POSTGRES_DB:-clinica_podologia}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clinica_network
+
+  # ─── Backend FastAPI ──────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: clinica_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-clinica}:${POSTGRES_PASSWORD:-clinica_secret_2026}@db:5432/${POSTGRES_DB:-clinica_podologia}
+      SECRET_KEY: ${SECRET_KEY:-cambiar-en-produccion-usar-uuid-aleatorio-de-32-caracteres}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 480
+      ENVIRONMENT: development
+      TZ: Europe/Madrid
+    volumes:
+      - ./backend:/app  # Hot-reload
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - clinica_network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ─── Frontend React ───────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: clinica_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL:
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Evita sobrescribir node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - clinica_network
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  clinica_network:
+    driver: bridge
