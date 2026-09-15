@@ -1039,6 +1039,7 @@ body.ficha-abierta {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  padding-left: 0.75rem;
 }
 
 .ficha-header-titulo h3 {
@@ -1391,16 +1392,56 @@ body.ficha-abierta {
 .ficha-rgpd-fecha-linea {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   margin-top: 0.5rem;
   font-size: 0.85rem;
-}
-
-.ficha-rgpd-fecha-linea .ficha-rgpd-label {
-  font-weight: 600;
   color: var(--gray-700);
 }
 
-.ficha-rgpd-fecha-linea .ficha-rgpd-fecha {
-  color: var(--gray-600);
+.ficha-rgpd-fecha-linea strong {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+/* Email y Ciudad a la misma altura */
+.ficha-contacto-fila {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  border-top: 1px solid var(--gray-100);
+}
+
+.ficha-contacto-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ficha-contacto-row {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid var(--gray-100);
+}
+
+.ficha-contacto-row:first-child {
+  border-top: none;
+}
+
+.ficha-contacto-campo {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border-right: 1px solid var(--gray-100);
+}
+
+.ficha-contacto-campo:last-child {
+  border-right: none;
+}
+
+.ficha-contacto-campo-wide {
+  flex: 2;
+}
+
+.ficha-contacto-campo-full {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
 }

@@ -187,8 +187,8 @@ function Pacientes() {
                   <td>{p.edad || '—'}</td>
                   <td>{p.ultima_consulta ? (<><strong>{formatearFecha(p.ultima_consulta.fecha_consulta)}</strong><br/><small style={{color:'#666'}}>{p.ultima_consulta.diagnostico || p.ultima_consulta.motivo_consulta || 'Sin diagnóstico'}</small></>) : <span style={{color:'#999'}}>Sin consultas</span>}</td>
                   <td>
-                    <span style={{ display:'inline-flex', alignItems:'center', gap:'0.25rem', padding:'0.25rem 0.5rem', borderRadius:'4px', fontSize:'0.75rem', fontWeight:600, backgroundColor: p.consentimiento_datos ? 'var(--success-100)' : 'var(--warning-100)', color: p.consentimiento_datos ? 'var(--success-700)' : 'var(--warning-700)' }}>
-                      {p.consentimiento_datos ? '✓ Firmado' : '⏳ Pendiente'}
+                    <span style={{ display:'inline-flex', alignItems:'center', gap:'0.25rem', padding:'0.25rem 0.5rem', borderRadius:'4px', fontSize:'0.75rem', fontWeight:600, backgroundColor: (p.consentimiento_datos && p.consentimiento_tratamiento) ? 'var(--success-100)' : 'var(--warning-100)', color: (p.consentimiento_datos && p.consentimiento_tratamiento) ? 'var(--success-700)' : 'var(--warning-700)' }}>
+                      {(p.consentimiento_datos && p.consentimiento_tratamiento) ? '✓ Firmado' : '⏳ Pendiente'}
                       {p.documento_consentimiento && <span style={{fontSize:'0.85rem'}}>📄</span>}
                     </span>
                   </td>
@@ -276,28 +276,30 @@ function Pacientes() {
                   {/* ── 2. Datos de Contacto ── */}
                   <div className="ficha-seccion">
                     <div className="ficha-seccion-titulo">📞 2. Datos de Contacto</div>
-                    <div className="ficha-contacto-fila">
-                      <div className="ficha-contacto-campo">
-                        <div className="ficha-campo-label">Teléfono</div>
-                        <div className="ficha-campo-valor">{pacienteSeleccionado.telefono || '—'}</div>
+                    <div className="ficha-contacto-grid">
+                      <div className="ficha-contacto-row">
+                        <div className="ficha-contacto-campo">
+                          <div className="ficha-campo-label">Teléfono</div>
+                          <div className="ficha-campo-valor">{pacienteSeleccionado.telefono || '—'}</div>
+                        </div>
+                        <div className="ficha-contacto-campo ficha-contacto-campo-wide">
+                          <div className="ficha-campo-label">Email</div>
+                          <div className="ficha-campo-valor" style={{ wordBreak: 'break-all' }}>{pacienteSeleccionado.email || '—'}</div>
+                        </div>
+                        <div className="ficha-contacto-campo">
+                          <div className="ficha-campo-label">Ciudad</div>
+                          <div className="ficha-campo-valor">{pacienteSeleccionado.ciudad || '—'}</div>
+                        </div>
+                        <div className="ficha-contacto-campo">
+                          <div className="ficha-campo-label">C.P.</div>
+                          <div className="ficha-campo-valor">{pacienteSeleccionado.codigo_postal || '—'}</div>
+                        </div>
                       </div>
-                      <div className="ficha-contacto-campo ficha-contacto-campo-wide">
-                        <div className="ficha-campo-label">Email</div>
-                        <div className="ficha-campo-valor" style={{ wordBreak: 'break-all' }}>{pacienteSeleccionado.email || '—'}</div>
-                      </div>
-                    </div>
-                    <div className="ficha-contacto-fila">
-                      <div className="ficha-contacto-campo ficha-contacto-campo-wide">
-                        <div className="ficha-campo-label">Dirección</div>
-                        <div className="ficha-campo-valor">{pacienteSeleccionado.direccion || '—'}</div>
-                      </div>
-                      <div className="ficha-contacto-campo">
-                        <div className="ficha-campo-label">Ciudad</div>
-                        <div className="ficha-campo-valor">{pacienteSeleccionado.ciudad || '—'}</div>
-                      </div>
-                      <div className="ficha-contacto-campo">
-                        <div className="ficha-campo-label">C.P.</div>
-                        <div className="ficha-campo-valor">{pacienteSeleccionado.codigo_postal || '—'}</div>
+                      <div className="ficha-contacto-row">
+                        <div className="ficha-contacto-campo-full">
+                          <div className="ficha-campo-label">Dirección</div>
+                          <div className="ficha-campo-valor">{pacienteSeleccionado.direccion || '—'}</div>
+                        </div>
                       </div>
                     </div>
                     {(pacienteSeleccionado.contacto_emergencia || pacienteSeleccionado.telefono_emergencia) && (
@@ -462,8 +464,7 @@ function Pacientes() {
                       </div>
                       {pacienteSeleccionado.consentimiento_fecha && (
                         <div className="ficha-rgpd-fecha-linea">
-                          <span className="ficha-rgpd-label">Fecha:</span>
-                          <span className="ficha-rgpd-fecha">{formatearFecha(pacienteSeleccionado.consentimiento_fecha)}</span>
+                          <strong>Fecha:</strong> {formatearFecha(pacienteSeleccionado.consentimiento_fecha)}
                         </div>
                       )}
                     </div>
@@ -565,7 +566,7 @@ function Pacientes() {
             {/* ═══ FOOTER ═══ */}
             <div className="ficha-footer">
               <Link to={`/historia-clinica?paciente=${pacienteSeleccionado.id}&ver=todas`} className="btn btn-secondary">
-                📋 VER HISTORIAS CLÍNICAS DEL PACIENTE
+                📋 Ver Historias Clínicas del Paciente
               </Link>
             </div>
           </div>
