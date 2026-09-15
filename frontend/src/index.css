@@ -973,49 +973,11 @@ body.ficha-abierta {
 }
 
 
-/* RGPD estados */
-.rgpd-ok {
-  color: #16a34a;
-  font-weight: 600;
-}
-
-.rgpd-ko {
-  color: #dc2626;
-  font-weight: 600;
-}
-
-/* Quitar icono de Cirugías Previas en ficha */
-.ficha-cirugias {
-  font-weight: 600;
-  color: var(--gray-700);
-}
-
-/* Fumador sin texto adicional */
-.ficha-fumador {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-/* Última Consulta: fecha y HC en misma línea */
-.ficha-ultima-fecha {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.85rem;
-  color: var(--gray-700);
-  margin-bottom: 0.5rem;
-}
-
-.ficha-ultima-fecha strong {
-  color: var(--gray-900);
-}
-
-
 /* ═══════════════════════════════════════════════════════════════
-   FICHA MODAL — Estilos adicionales para nuevos elementos
+   FICHA DEL PACIENTE — Estilos del modal de ficha
    ═══════════════════════════════════════════════════════════════ */
 
+/* Header de la ficha */
 .ficha-modal {
   max-width: 650px;
   max-height: 90vh;
@@ -1062,12 +1024,14 @@ body.ficha-abierta {
   flex-shrink: 0;
 }
 
+/* Contenido scrolleable */
 .ficha-contenido {
   padding: 0.75rem 1.25rem;
   overflow-y: auto;
   flex: 1;
 }
 
+/* Footer */
 .ficha-footer {
   padding: 0.75rem 1.25rem;
   border-top: 2px solid var(--gray-100);
@@ -1088,6 +1052,7 @@ body.ficha-abierta {
   border: 1px solid var(--gray-200);
   border-radius: var(--radius);
   overflow: hidden;
+  padding: 0;
 }
 
 .ficha-seccion-titulo {
@@ -1145,7 +1110,7 @@ body.ficha-abierta {
 /* Filas de contacto (flex) */
 .ficha-contacto-fila {
   display: flex;
-  gap: 0;
+  align-items: stretch;
   border-top: 1px solid var(--gray-100);
 }
 
@@ -1199,7 +1164,6 @@ body.ficha-abierta {
   gap: 0.35rem;
   font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
@@ -1330,10 +1294,19 @@ body.ficha-abierta {
   font-weight: 600;
 }
 
-/* Cirugías Previas sin icono */
-.ficha-cirugias {
-  font-weight: 600;
+/* Fecha RGPD en línea */
+.ficha-rgpd-fecha-linea {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
   color: var(--gray-700);
+}
+
+.ficha-rgpd-fecha-linea strong {
+  font-weight: 600;
+  color: var(--gray-900);
 }
 
 /* Responsive */
@@ -1377,71 +1350,8 @@ body.ficha-abierta {
     grid-template-columns: 1fr;
   }
   
-  .ficha-modal {
-    max-width: 100%;
-  }
-  
   .ficha-ultima-fecha {
     flex-direction: column;
     gap: 0.25rem;
   }
-}
-
-
-/* Fecha RGPD en línea */
-.ficha-rgpd-fecha-linea {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--gray-700);
-}
-
-.ficha-rgpd-fecha-linea strong {
-  font-weight: 600;
-  color: var(--gray-900);
-}
-
-/* Email y Ciudad a la misma altura */
-.ficha-contacto-fila {
-  display: flex;
-  align-items: flex-start;
-  gap: 0;
-  border-top: 1px solid var(--gray-100);
-}
-
-.ficha-contacto-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.ficha-contacto-row {
-  display: flex;
-  align-items: stretch;
-  border-top: 1px solid var(--gray-100);
-}
-
-.ficha-contacto-row:first-child {
-  border-top: none;
-}
-
-.ficha-contacto-campo {
-  flex: 1;
-  padding: 0.4rem 0.6rem;
-  border-right: 1px solid var(--gray-100);
-}
-
-.ficha-contacto-campo:last-child {
-  border-right: none;
-}
-
-.ficha-contacto-campo-wide {
-  flex: 2;
-}
-
-.ficha-contacto-campo-full {
-  flex: 1;
-  padding: 0.4rem 0.6rem;
 }

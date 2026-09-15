@@ -276,29 +276,31 @@ function Pacientes() {
                   {/* ── 2. Datos de Contacto ── */}
                   <div className="ficha-seccion">
                     <div className="ficha-seccion-titulo">📞 2. Datos de Contacto</div>
-                    <div className="ficha-contacto-grid">
-                      <div className="ficha-contacto-row">
-                        <div className="ficha-contacto-campo">
-                          <div className="ficha-campo-label">Teléfono</div>
-                          <div className="ficha-campo-valor">{pacienteSeleccionado.telefono || '—'}</div>
-                        </div>
-                        <div className="ficha-contacto-campo ficha-contacto-campo-wide">
-                          <div className="ficha-campo-label">Email</div>
-                          <div className="ficha-campo-valor" style={{ wordBreak: 'break-all' }}>{pacienteSeleccionado.email || '—'}</div>
-                        </div>
-                        <div className="ficha-contacto-campo">
-                          <div className="ficha-campo-label">Ciudad</div>
-                          <div className="ficha-campo-valor">{pacienteSeleccionado.ciudad || '—'}</div>
-                        </div>
-                        <div className="ficha-contacto-campo">
-                          <div className="ficha-campo-label">C.P.</div>
-                          <div className="ficha-campo-valor">{pacienteSeleccionado.codigo_postal || '—'}</div>
-                        </div>
+                    <div className="ficha-contacto-aligned">
+                      <div className="ficha-contacto-aligned-campo">
+                        <div className="ficha-campo-label">Teléfono</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.telefono || '—'}</div>
                       </div>
-                      <div className="ficha-contacto-row">
-                        <div className="ficha-contacto-campo-full">
-                          <div className="ficha-campo-label">Dirección</div>
-                          <div className="ficha-campo-valor">{pacienteSeleccionado.direccion || '—'}</div>
+                      <div className="ficha-contacto-aligned-campo ficha-contacto-aligned-campo-wide">
+                        <div className="ficha-campo-label">Email</div>
+                        <div className="ficha-campo-valor" style={{ wordBreak: 'break-all' }}>{pacienteSeleccionado.email || '—'}</div>
+                      </div>
+                    </div>
+                    <div className="ficha-contacto-aligned">
+                      <div className="ficha-contacto-aligned-campo">
+                        <div className="ficha-campo-label">Dirección</div>
+                        <div className="ficha-campo-valor">{pacienteSeleccionado.direccion || '—'}</div>
+                      </div>
+                      <div className="ficha-contacto-aligned-campo ficha-contacto-aligned-campo-wide">
+                        <div className="ficha-contacto-subcampos">
+                          <div className="ficha-contacto-subcampo">
+                            <div className="ficha-campo-label">Ciudad</div>
+                            <div className="ficha-campo-valor">{pacienteSeleccionado.ciudad || '—'}</div>
+                          </div>
+                          <div className="ficha-contacto-subcampo">
+                            <div className="ficha-campo-label">C.P.</div>
+                            <div className="ficha-campo-valor">{pacienteSeleccionado.codigo_postal || '—'}</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -336,19 +338,19 @@ function Pacientes() {
                           )}
                           {pacienteSeleccionado.enfermedades_reumaticas && (
                             <div className="ficha-antecedente-item">
-                              <span className="ficha-antecedente-badge badge-amarillo">🔗 Reumática</span>
+                              <span className="ficha-antecedente-badge badge-rojo">🔗 Reumática</span>
                               <span className="ficha-antecedente-detalle">{pacienteSeleccionado.enfermedades_reumaticas_detalle || 'Sin detalles'}</span>
                             </div>
                           )}
                           {pacienteSeleccionado.enfermedades_neurologicas && (
                             <div className="ficha-antecedente-item">
-                              <span className="ficha-antecedente-badge badge-amarillo">🧠 Neurológica</span>
+                              <span className="ficha-antecedente-badge badge-rojo">🧠 Neurológica</span>
                               <span className="ficha-antecedente-detalle">{pacienteSeleccionado.enfermedades_neurologicas_detalle || 'Sin detalles'}</span>
                             </div>
                           )}
                           {pacienteSeleccionado.enfermedades_oseas && (
                             <div className="ficha-antecedente-item">
-                              <span className="ficha-antecedente-badge badge-amarillo">🦴 Ósea</span>
+                              <span className="ficha-antecedente-badge badge-rojo">🦴 Ósea</span>
                               <span className="ficha-antecedente-detalle">{pacienteSeleccionado.enfermedades_oseas_detalle || 'Sin detalles'}</span>
                             </div>
                           )}
@@ -360,7 +362,7 @@ function Pacientes() {
                           )}
                           {pacienteSeleccionado.embarazada && (
                             <div className="ficha-antecedente-item">
-                              <span className="ficha-antecedente-badge badge-azul">🤰 Embarazo</span>
+                              <span className="ficha-antecedente-badge badge-rojo">🤰 Embarazo</span>
                               <span className="ficha-antecedente-detalle">{pacienteSeleccionado.embarazada_detalle || 'Sin detalles'}</span>
                             </div>
                           )}
@@ -378,14 +380,14 @@ function Pacientes() {
 
                       {pacienteSeleccionado.medicacion_actual && (
                         <div style={{ marginTop: '0.5rem' }}>
-                          <div className="ficha-antecedente-badge badge-azul" style={{ marginBottom: '0.25rem' }}>💊 Medicación Actual</div>
+                          <div className="ficha-antecedente-badge badge-rojo" style={{ marginBottom: '0.25rem' }}>💊 Medicación Actual</div>
                           <div className="ficha-antecedente-detalle">{pacienteSeleccionado.medicacion_actual}</div>
                         </div>
                       )}
 
                       {pacienteSeleccionado.antecedentes && (
                         <div style={{ marginTop: '0.5rem' }}>
-                          <div className="ficha-antecedente-badge" style={{ background: 'var(--gray-100)', color: 'var(--gray-700)', marginBottom: '0.25rem' }}>📝 Antecedentes médicos</div>
+                          <div className="ficha-antecedente-badge badge-rojo" style={{ marginBottom: '0.25rem' }}>📝 Antecedentes médicos</div>
                           <div className="ficha-antecedente-detalle">{pacienteSeleccionado.antecedentes}</div>
                         </div>
                       )}
@@ -405,7 +407,7 @@ function Pacientes() {
                         )}
                         {pacienteSeleccionado.plantillas_previas && (
                           <div className="ficha-podo-item">
-                            <span className="ficha-antecedente-badge badge-azul">Plantillas</span>
+                            <span className="ficha-antecedente-badge badge-amarillo">Plantillas</span>
                             <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.plantillas_previas_detalle || 'Sin detalles'}</div>
                           </div>
                         )}
@@ -413,7 +415,7 @@ function Pacientes() {
 
                       {pacienteSeleccionado.cirugias_previas && (
                         <div style={{ marginTop: '0.75rem' }}>
-                          <div className="ficha-campo-label ficha-cirugias" style={{ marginBottom: '0.25rem' }}>Cirugías Previas</div>
+                          <div className="ficha-campo-label" style={{ marginBottom: '0.25rem' }}><span className="ficha-antecedente-badge badge-amarillo">Cirugías Previas</span></div>
                           <div className="ficha-antecedente-detalle">{pacienteSeleccionado.cirugias_previas}</div>
                         </div>
                       )}
@@ -421,13 +423,13 @@ function Pacientes() {
                       <div style={{ marginTop: '0.75rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                         {pacienteSeleccionado.deporte && (
                           <div className="ficha-podo-item">
-                            <span className="ficha-antecedente-badge badge-azul">Deporte</span>
+                            <span className="ficha-antecedente-badge badge-amarillo">Deporte</span>
                             <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.frecuencia_deporte || 'Sí'}</div>
                           </div>
                         )}
                         {pacienteSeleccionado.tipo_calzado && (
                           <div className="ficha-podo-item">
-                            <span className="ficha-antecedente-badge badge-azul">Calzado</span>
+                            <span className="ficha-antecedente-badge badge-amarillo">Calzado</span>
                             <div className="ficha-antecedente-detalle" style={{ marginTop: '0.25rem' }}>{pacienteSeleccionado.tipo_calzado}</div>
                           </div>
                         )}
@@ -439,7 +441,7 @@ function Pacientes() {
                         )}
                         {pacienteSeleccionado.fumador && (
                           <div className="ficha-podo-item">
-                            <span className="ficha-antecedente-badge badge-rojo">Fumador</span>
+                            <span className="ficha-antecedente-badge badge-amarillo">Fumador</span>
                           </div>
                         )}
                       </div>
@@ -559,15 +561,13 @@ function Pacientes() {
                       </div>
                     )}
                   </div>
+                  <div style={{ textAlign: 'center', marginTop: '1rem', marginBottom: '0.5rem' }}>
+                    <Link to={`/historia-clinica?paciente=${pacienteSeleccionado.id}&ver=todas`} className="btn btn-secondary">
+                      📋 VER HISTORIAS CLÍNICAS DEL PACIENTE
+                    </Link>
+                  </div>
                 </>
               )}
-            </div>
-
-            {/* ═══ FOOTER ═══ */}
-            <div className="ficha-footer">
-              <Link to={`/historia-clinica?paciente=${pacienteSeleccionado.id}&ver=todas`} className="btn btn-secondary">
-                📋 Ver Historias Clínicas del Paciente
-              </Link>
             </div>
           </div>
         </div>
