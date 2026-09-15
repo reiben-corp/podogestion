@@ -245,28 +245,32 @@ function Pacientes() {
                   {/* ── 1. Datos de Identificación ── */}
                   <div className="ficha-seccion">
                     <div className="ficha-seccion-titulo">📋 1. Datos de Identificación</div>
-                    <div className="ficha-grid-2col">
-                      <div>
+                    <div className="ficha-contacto-aligned">
+                      <div className="ficha-contacto-aligned-campo">
                         <div className="ficha-campo-label">DNI</div>
                         <div className="ficha-campo-valor">{pacienteSeleccionado.dni || '—'}</div>
                       </div>
-                      <div>
+                      <div className="ficha-contacto-aligned-campo ficha-contacto-aligned-campo-wide">
                         <div className="ficha-campo-label">Sexo</div>
                         <div className="ficha-campo-valor">{getSexoLabel(pacienteSeleccionado.sexo)}</div>
                       </div>
-                      <div>
+                    </div>
+                    <div className="ficha-contacto-aligned">
+                      <div className="ficha-contacto-aligned-campo">
                         <div className="ficha-campo-label">Fecha Nac.</div>
                         <div className="ficha-campo-valor">{formatearFecha(pacienteSeleccionado.fecha_nacimiento)}</div>
                       </div>
-                      <div>
+                      <div className="ficha-contacto-aligned-campo ficha-contacto-aligned-campo-wide">
                         <div className="ficha-campo-label">Estado Civil</div>
                         <div className="ficha-campo-valor">{getEstadoCivilLabel(pacienteSeleccionado.estado_civil)}</div>
                       </div>
-                      <div>
+                    </div>
+                    <div className="ficha-contacto-aligned">
+                      <div className="ficha-contacto-aligned-campo">
                         <div className="ficha-campo-label">Edad</div>
                         <div className="ficha-campo-valor">{pacienteSeleccionado.edad || '—'}</div>
                       </div>
-                      <div>
+                      <div className="ficha-contacto-aligned-campo ficha-contacto-aligned-campo-wide">
                         <div className="ficha-campo-label">Profesión</div>
                         <div className="ficha-campo-valor">{pacienteSeleccionado.profesion || '—'}</div>
                       </div>

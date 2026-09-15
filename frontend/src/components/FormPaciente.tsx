@@ -364,12 +364,12 @@ function FormPaciente({ initialData, onSubmit, onCancel, loading, formRef }: For
             <label>Tipo de Calzado Frecuente</label>
             <select value={formData.tipo_calzado} onChange={e => handleChange('tipo_calzado', e.target.value)}>
               <option value="">Seleccionar...</option>
-              <option value="deportivo">Deportivo</option>
-              <option value="vestir">Vestir</option>
-              <option value="bota">Bota</option>
-              <option value="tacon">Tacón</option>
-              <option value="seguridad">Seguridad</option>
-              <option value="otro">Otro</option>
+              <option value="Deportivo">Deportivo</option>
+              <option value="Vestir">Vestir</option>
+              <option value="Bota">Bota</option>
+              <option value="Tacón">Tacón</option>
+              <option value="Seguridad">Seguridad</option>
+              <option value="Otro">Otro</option>
             </select>
           </div>
         </div>
