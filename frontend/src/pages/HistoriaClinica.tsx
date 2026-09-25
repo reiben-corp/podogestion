@@ -240,13 +240,18 @@ function HistoriaClinica() {
                         <td>{historia.paciente_nombre || 'N/A'}</td>
                         <td>{historia.motivo_consulta || '-'}</td>
                         <td onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => {
-                            apiClient.get(`/historias/${historia.id}`)
-                              .then(response => {
-                                setHistoriaActual(response.data);
-                                setMostrarDetalleModal(true);
-                              });
-                          }}
+                          <button type="button"
+                            onClick={() => {
+                              apiClient.get(`/historias/${historia.id}`)
+                                .then(response => {
+                                  setHistoriaActual(response.data);
+                                  setMostrarDetalleModal(true);
+                                })
+                                .catch(error => {
+                                  console.error('Error cargando historia:', error);
+                                  alert('Error al cargar la historia clínica');
+                                });
+                            }}
                             className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
                             Abrir
                           </button>
