@@ -155,6 +155,23 @@ function HistoriaClinica() {
     }
   };
 
+  // Handler para botón Abrir (historia completa + modal)
+  const handleAbrirHistoria = (historia: Historia) => {
+    console.log('>>> handleAbrirHistoria called, id:', historia.id);
+    const token = localStorage.getItem('token');
+    console.log('>>> Token:', !!token ? 'sí' : 'NO');
+    apiClient.get(`/historias/${historia.id}`)
+      .then(response => {
+        console.log('>>> Respuesta OK:', response.data.numero_historia);
+        setHistoriaActual(response.data);
+        setMostrarDetalleModal(true);
+      })
+      .catch(error => {
+        console.error('>>> Error:', error.response?.status, error.message);
+        alert('Error al cargar: ' + (error.response?.data?.detail || error.message));
+      });
+  };
+
   const historiaToFormData = (h: Historia) => ({
     paciente_id: h.paciente_id,
     motivo_consulta: h.motivo_consulta || '',
@@ -241,21 +258,7 @@ function HistoriaClinica() {
                         <td>{historia.motivo_consulta || '-'}</td>
                         <td onClick={(e) => e.stopPropagation()}>
                           <button type="button"
-                            onClick={() => {
-                              console.log('Botón Abrir pulsado, historia.id:', historia.id);
-                              const token = localStorage.getItem('token');
-                              console.log('Token presente:', !!token, 'usuario auth:', window.location.pathname);
-                              apiClient.get(`/historias/${historia.id}`)
-                                .then(response => {
-                                  console.log('Respuesta OK, datos:', response.data.numero_historia);
-                                  setHistoriaActual(response.data);
-                                  setMostrarDetalleModal(true);
-                                })
-                                .catch(error => {
-                                  console.error('Error cargando historia:', error.response?.status, error.message);
-                                  alert('Error al cargar la historia clínica: ' + (error.response?.data?.detail || error.message));
-                                });
-                            }}
+                            onClick={() => handleAbrirHistoria(historia)}
                             className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
                             Abrir
                           </button>
@@ -389,15 +392,8 @@ function HistoriaClinica() {
                         <td>{historia.paciente_nombre || 'N/A'}</td>
                         <td>{historia.motivo_consulta || '-'}</td>
                         <td>
-                          <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem' }}
-                            onClick={() => {
-                              // Cargar historia completa y abrir modal
-                              apiClient.get(`/historias/${historia.id}`)
-                                .then(response => {
-                                  setHistoriaActual(response.data);
-                                  setMostrarDetalleModal(true);
-                                });
-                            }}>
+                          <button type="button" className="btn btn-primary" style={{ padding: '0.4rem 0.8rem' }}
+                            onClick={() => handleAbrirHistoria(historia)}>
                             Abrir
                           </button>
                         </td>
