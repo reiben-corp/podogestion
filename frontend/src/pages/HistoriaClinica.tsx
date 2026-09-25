@@ -38,6 +38,7 @@ function HistoriaClinica() {
   const [historias, setHistorias] = useState<Historia[]>([]);
   const [historiasRecientes, setHistoriasRecientes] = useState<Historia[]>([]);
   const [historiaActual, setHistoriaActual] = useState<Historia | null>(null);
+  const [mostrarDetalleModal, setMostrarDetalleModal] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [mostrarModalFormulario, setMostrarModalFormulario] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
@@ -47,7 +48,7 @@ function HistoriaClinica() {
   const [buscando, setBuscando] = useState(false);
   const { user: _user } = useAuth();
 
-  useScrollLock(mostrarModalFormulario);
+  useScrollLock(mostrarModalFormulario || mostrarDetalleModal);
 
   const cargarPacientes = async () => {
     try {
@@ -115,7 +116,8 @@ function HistoriaClinica() {
       await apiClient.put(`/historias/${historiaActual.id}`, data);
       setMensaje('Consulta actualizada correctamente');
     } else {
-      await apiClient.post('/historias', { ...data, profesional_id: 1 });
+      await apiClient.post('/historias', { ...data, profesional_id: 2 });
+      // ^ profesional_id=2 → admin (seeder crea admin con ID=2)
       setMensaje('Consulta creada correctamente');
     }
     cargarHistoriasRecientes();
@@ -238,9 +240,9 @@ function HistoriaClinica() {
                         <td>{historia.paciente_nombre || 'N/A'}</td>
                         <td>{historia.motivo_consulta || '-'}</td>
                         <td onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => setHistoriaActual(historia)}
+                          <button onClick={() => { setHistoriaActual(historia); setMostrarDetalleModal(true); }}
                             className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
-                            Ver detalle
+                            Abrir
                           </button>
                           <button onClick={() => { setHistoriaActual(historia); setModoEdicion(true); setMostrarModalFormulario(true); }}
                             className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', marginLeft: '0.3rem' }}>
@@ -258,87 +260,98 @@ function HistoriaClinica() {
               </div>
             )}
 
-            {historiaActual && (
-              <div className="card" style={{ marginTop: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                  <div>
-                    <h3 style={{ color: '#1e3a5f', marginBottom: '0.3rem' }}>
-                      Consulta {historiaActual.numero_historia} — {formatearFecha(historiaActual.fecha_consulta)}
-                    </h3>
-                    <p style={{ color: '#666' }}>
-                      Paciente: {historiaActual.paciente_nombre || 'N/A'}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.3rem' }}>
-                    <button onClick={() => { setModoEdicion(true); setMostrarModalFormulario(true); }}
-                      className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
-                      ✏️ Editar
-                    </button>
-                    <button onClick={() => handleEliminar(historiaActual)}
-                      className="btn btn-danger" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
-                      🗑️
-                    </button>
+      {/* Modal: Detalle de Historia Clínica */}
+      {mostrarDetalleModal && historiaActual && (
+        <div className="modal-overlay" onClick={() => setMostrarDetalleModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ padding: '1.5rem', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+            <div className="ficha-modal-header" style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', width: '100%' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: 'var(--gray-900)' }}>
+                    Consulta {historiaActual.numero_historia}
+                  </h2>
+                  <p style={{ color: '#666', fontSize: '0.85rem', marginTop: '0.2rem' }}>
+                    {formatearFecha(historiaActual.fecha_consulta)} — {historiaActual.paciente_nombre}
+                  </p>
+                </div>
+                <button onClick={() => setMostrarDetalleModal(false)}
+                  className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                  ✕ Cerrar
+                </button>
+              </div>
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '1rem' }}>
+                <button onClick={() => { setMostrarDetalleModal(false); setModoEdicion(true); setMostrarModalFormulario(true); }}
+                  className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
+                  ✏️ Editar
+                </button>
+                <button onClick={() => { setMostrarDetalleModal(false); handleEliminar(historiaActual); }}
+                  className="btn btn-danger" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
+                  🗑️
+                </button>
+              </div>
+
+              <DetalleSeccion titulo="1. Motivo de Consulta" valor={historiaActual.motivo_consulta} />
+              <DetalleSeccion titulo="2. Antecedentes Personales" valor={historiaActual.antecedentes_personales} />
+              <DetalleSeccion titulo="Antecedentes Familiares" valor={historiaActual.antecedentes_familiares} />
+              <DetalleSeccion titulo="3. Exploración Física" valor={historiaActual.exploracion_fisica} />
+
+              {historiaActual.diagnostico && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4 style={{ color: '#555', fontSize: '0.9rem' }}>4. Diagnóstico</h4>
+                  <p>{historiaActual.diagnostico}</p>
+                  {historiaActual.codigo_diagnostico && (
+                    <span className="badge badge-info">CIAP-2: {historiaActual.codigo_diagnostico}</span>
+                  )}
+                </div>
+              )}
+
+              <DetalleSeccion titulo="5. Plan de Tratamiento" valor={historiaActual.plan_tratamiento} />
+              <DetalleSeccion titulo="6. Evolución" valor={historiaActual.evolucion} />
+              <DetalleSeccion titulo="7. Observaciones" valor={historiaActual.observaciones} />
+
+              {historiaActual.exploraciones?.length > 0 && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4 style={{ color: '#555', fontSize: '0.9rem' }}>8. Exploraciones Biomecánicas</h4>
+                  {historiaActual.exploraciones.map((exp: any) => (
+                    <div key={exp.id} style={{ padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', marginBottom: '0.5rem' }}>
+                      <span className="badge badge-primary">{exp.tipo}</span>
+                      {exp.resultado && <p style={{ marginTop: '0.3rem' }}>{exp.resultado}</p>}
+                      {exp.observaciones && <small style={{ color: '#888' }}>{exp.observaciones}</small>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {historiaActual.tratamientos?.length > 0 && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4 style={{ color: '#555', fontSize: '0.9rem' }}>9. Tratamientos</h4>
+                  {historiaActual.tratamientos.map((trat: any) => (
+                    <div key={trat.id} style={{ padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', marginBottom: '0.5rem' }}>
+                      <span className="badge badge-success">{trat.tipo}</span>
+                      <p style={{ marginTop: '0.3rem' }}>{trat.descripcion}</p>
+                      {trat.zona && <small style={{ color: '#888' }}>Zona: {trat.zona}</small>}
+                      {trat.pie && <small style={{ color: '#888', marginLeft: '0.5rem' }}>({trat.pie})</small>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {historiaActual.podogramas?.length > 0 && (
+                <div style={{ margin: '1rem 0' }}>
+                  <h4 style={{ color: '#1e3a5f', marginBottom: '1rem' }}>🦶 Podograma</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    {historiaActual.podogramas.map((pod: any) => (
+                      <Podograma key={pod.id} pie={pod.pie} datos={pod.datos} modo="ver" />
+                    ))}
                   </div>
                 </div>
-
-                <DetalleSeccion titulo="1. Motivo de Consulta" valor={historiaActual.motivo_consulta} />
-                <DetalleSeccion titulo="2. Antecedentes Personales" valor={historiaActual.antecedentes_personales} />
-                <DetalleSeccion titulo="Antecedentes Familiares" valor={historiaActual.antecedentes_familiares} />
-                <DetalleSeccion titulo="3. Exploración Física" valor={historiaActual.exploracion_fisica} />
-
-                {historiaActual.diagnostico && (
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h4 style={{ color: '#555', fontSize: '0.9rem' }}>4. Diagnóstico</h4>
-                    <p>{historiaActual.diagnostico}</p>
-                    {historiaActual.codigo_diagnostico && (
-                      <span className="badge badge-info">CIAP-2: {historiaActual.codigo_diagnostico}</span>
-                    )}
-                  </div>
-                )}
-
-                <DetalleSeccion titulo="5. Plan de Tratamiento" valor={historiaActual.plan_tratamiento} />
-                <DetalleSeccion titulo="6. Evolución" valor={historiaActual.evolucion} />
-                <DetalleSeccion titulo="7. Observaciones" valor={historiaActual.observaciones} />
-
-                {historiaActual.exploraciones?.length > 0 && (
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h4 style={{ color: '#555', fontSize: '0.9rem' }}>8. Exploraciones Biomecánicas</h4>
-                    {historiaActual.exploraciones.map((exp: any) => (
-                      <div key={exp.id} style={{ padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', marginBottom: '0.5rem' }}>
-                        <span className="badge badge-primary">{exp.tipo}</span>
-                        {exp.resultado && <p style={{ marginTop: '0.3rem' }}>{exp.resultado}</p>}
-                        {exp.observaciones && <small style={{ color: '#888' }}>{exp.observaciones}</small>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {historiaActual.tratamientos?.length > 0 && (
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h4 style={{ color: '#555', fontSize: '0.9rem' }}>9. Tratamientos</h4>
-                    {historiaActual.tratamientos.map((trat: any) => (
-                      <div key={trat.id} style={{ padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', marginBottom: '0.5rem' }}>
-                        <span className="badge badge-success">{trat.tipo}</span>
-                        <p style={{ marginTop: '0.3rem' }}>{trat.descripcion}</p>
-                        {trat.zona && <small style={{ color: '#888' }}>Zona: {trat.zona}</small>}
-                        {trat.pie && <small style={{ color: '#888', marginLeft: '0.5rem' }}>({trat.pie})</small>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {historiaActual.podogramas?.length > 0 && (
-                  <div style={{ margin: '1rem 0' }}>
-                    <h4 style={{ color: '#1e3a5f', marginBottom: '1rem' }}>🦶 Podograma</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      {historiaActual.podogramas.map((pod: any) => (
-                        <Podograma key={pod.id} pie={pod.pie} datos={pod.datos} modo="ver" />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
+          </div>
+        </div>
+      )}
           </>
         ) : (
           <div>
@@ -369,15 +382,14 @@ function HistoriaClinica() {
                         <td>
                           <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem' }}
                             onClick={() => {
-                              // Buscar todas las historias del paciente usando el endpoint por ID
-                              apiClient.get(`/historias/paciente/${historia.paciente_id}?por_pagina=200`)
+                              // Cargar historia completa y abrir modal
+                              apiClient.get(`/historias/${historia.id}`)
                                 .then(response => {
-                                  setHistorias(response.data);
-                                  setBuscando(true);
-                                  setBusqueda(historia.paciente_nombre || '');
+                                  setHistoriaActual(response.data);
+                                  setMostrarDetalleModal(true);
                                 });
                             }}>
-                            Ver todas
+                            Abrir
                           </button>
                         </td>
                       </tr>
@@ -396,7 +408,6 @@ function HistoriaClinica() {
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ padding: 0 }}>
             <div className="ficha-modal-header" style={{ borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0' }}>
               <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: 'var(--gray-900)' }}>{modoEdicion ? '✏️ Editar Consulta' : '📋 Nueva Historia Clínica'}</h2>
-              <button onClick={() => setMostrarModalFormulario(false)} className="btn btn-secondary btn-sm">✕</button>
             </div>
             <div style={{ padding: '1.5rem', overflowY: 'auto' }}>
               <FormHistoriaClinica

@@ -916,12 +916,11 @@ body.ficha-abierta {
 /* Header fijo - texto prominente */
 .ficha-modal-header {
   background: #fff;
-  padding: 0.6rem 1rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid #e0e0e0;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  gap: 1rem;
 }
 
 .ficha-modal-header h3 {

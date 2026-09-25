@@ -83,7 +83,6 @@ function Modal({ titulo, onClose, children }: ModalProps) {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 0 }}>
         <div className="ficha-modal-header" style={{ borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0' }}>
           <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: 'var(--gray-900)' }}>{titulo}</h2>
-          <button className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
         </div>
         <div style={{ padding: '1.5rem', overflowY: 'auto' }}>
           {children}
@@ -251,7 +250,7 @@ function Dashboard() {
     try {
       await apiClient.post('/citas', {
         paciente_id: Number(data.paciente_id),
-        profesional_id: 1,
+        profesional_id: 2, // admin (seeder: admin → ID=2)
         fecha: data.fecha,
         hora_inicio: data.hora_inicio,
         hora_fin: data.hora_fin,
@@ -271,7 +270,7 @@ function Dashboard() {
     try {
       await apiClient.post('/historias', {
         paciente_id: Number(data.paciente_id),
-        profesional_id: 1,
+        profesional_id: 2, // admin (seeder: admin → ID=2)
         motivo_consulta: data.motivo_consulta,
         antecedentes_personales: data.antecedentes_personales || null,
         antecedentes_familiares: data.antecedentes_familiares || null,
@@ -300,7 +299,7 @@ function Dashboard() {
       await apiClient.post('/facturacion', {
         tipo: data.tipo,
         paciente_id: Number(data.paciente_id),
-        profesional_id: 1,
+        profesional_id: 2, // admin (seeder: admin → ID=2)
         lineas: data.lineas,
       });
       await Promise.all([cargarDashboard(), cargarAuditoria()]);

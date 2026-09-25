@@ -167,7 +167,7 @@ function Pacientes() {
     try {
       await apiClient.post('/historias', {
         ...data,
-        profesional_id: 1,
+        profesional_id: 2, // admin (seeder: admin → ID=2)
       });
       alert('Consulta creada correctamente');
       setMostrarModalConsulta(false);
@@ -602,7 +602,6 @@ function Pacientes() {
           <div className="modal edit-modal" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '92vh', overflowY: 'auto', padding: 0 }}>
             <div className="ficha-modal-header">
               <h2>✏️ Editar Paciente — {pacienteSeleccionado.codigo_paciente}</h2>
-              <button onClick={() => setMostrarModalEdit(false)} className="btn btn-secondary btn-sm">✕</button>
             </div>
             <FormPaciente
               initialData={formDataEdit}
@@ -630,7 +629,6 @@ function Pacientes() {
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '92vh' }}>
             <div className="ficha-modal-header">
               <h2 style={{ margin: 0 }}>📋 Nueva Consulta — {pacienteSeleccionado.nombre} {pacienteSeleccionado.apellidos}</h2>
-              <button onClick={() => setMostrarModalConsulta(false)} className="btn btn-secondary btn-sm">✕</button>
             </div>
             <div style={{ overflowY: 'auto', padding: '1.5rem' }}>
               <FormHistoriaClinica
