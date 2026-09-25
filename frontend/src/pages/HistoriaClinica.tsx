@@ -242,14 +242,18 @@ function HistoriaClinica() {
                         <td onClick={(e) => e.stopPropagation()}>
                           <button type="button"
                             onClick={() => {
+                              console.log('Botón Abrir pulsado, historia.id:', historia.id);
+                              const token = localStorage.getItem('token');
+                              console.log('Token presente:', !!token, 'usuario auth:', window.location.pathname);
                               apiClient.get(`/historias/${historia.id}`)
                                 .then(response => {
+                                  console.log('Respuesta OK, datos:', response.data.numero_historia);
                                   setHistoriaActual(response.data);
                                   setMostrarDetalleModal(true);
                                 })
                                 .catch(error => {
-                                  console.error('Error cargando historia:', error);
-                                  alert('Error al cargar la historia clínica');
+                                  console.error('Error cargando historia:', error.response?.status, error.message);
+                                  alert('Error al cargar la historia clínica: ' + (error.response?.data?.detail || error.message));
                                 });
                             }}
                             className="btn btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}>
